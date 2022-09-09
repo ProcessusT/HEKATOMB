@@ -380,8 +380,9 @@ def main():
 							tmp_cred["password1"] = creds['Unknown'].decode('utf-16le') 
 							tmp_cred["password2"] = str( creds['Unknown3'].decode('utf-16le') ) 
 							if options.md5 is True:
-								tmp_cred["password1"] = hashlib.md5(str( creds['Unknown'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
-								tmp_cred["password1"] = hashlib.md5(str( creds['Unknown'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
+								if len(creds['Unknown'].decode('utf-16le')) > 0:
+									tmp_cred["password1"] = hashlib.md5(str( creds['Unknown'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
+								tmp_cred["password2"] = hashlib.md5(str( creds['Unknown3'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
 							array_of_credentials.append(tmp_cred)
 					except:
 						if options.debugmax is True:

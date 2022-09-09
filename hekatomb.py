@@ -12,7 +12,7 @@ from binascii import unhexlify, hexlify
 import dns.resolver
 from impacket.examples.smbclient import MiniImpacketShell
 import traceback
-from impacket.dpapi import PVK_FILE_HDR, PRIVATE_KEY_BLOB, privatekeyblob_to_pkcs1, MasterKeyFile, MasterKey, DomainKey, DPAPI_DOMAIN_RSA_MASTER_KEY, CredentialFile, DPAPI_BLOB, CREDENTIAL_BLOB
+from impacket.dpapi import CredHist, PVK_FILE_HDR, PRIVATE_KEY_BLOB, privatekeyblob_to_pkcs1, MasterKeyFile, MasterKey, DomainKey, DPAPI_DOMAIN_RSA_MASTER_KEY, CredentialFile, DPAPI_BLOB, CREDENTIAL_BLOB
 from Cryptodome.Cipher import PKCS1_v1_5
 from datetime import datetime
 from impacket.ese import getUnixTime
@@ -35,6 +35,7 @@ def main():
 	group.add_argument('-pvk', action='store', help='domain backup keys file')
 	group.add_argument('-hashes', action="store", metavar = "LMHASH:NTHASH", help='NTLM hashes, format is LMHASH:NTHASH')
 	group.add_argument('-dns', action="store", help='DNS server IP address to resolve computers hostname')
+	group.add_argument('-dnstcp', action="store_true", help='Use TCP for DNS connection')
 	group.add_argument('-port', choices=['139', '445'], nargs='?', default='445', metavar="port", help='port to connect to SMB Server')
 	
 	verbosity = parser.add_argument_group('verbosity')
@@ -217,7 +218,10 @@ def main():
 			resolver = dns.resolver.Resolver(configure=False)
 			resolver.nameservers = [dns_server]
 			current_computer = current_computer + "." + domain
-			answer = resolver.resolve(current_computer, "A")
+			if options.dnstcp is True:
+				answer = resolver.resolve(current_computer, "A", tcp=True)
+			else:
+				answer = resolver.resolve(current_computer, "A")
 			if len(answer) == 0:
 				sys.exit(1)
 			else:

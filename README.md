@@ -67,6 +67,7 @@ authentication:
   -pvk PVK              domain backup keys file
   -hashes LMHASH:NTHASH NTLM hashes, format is LMHASH:NTHASH
   -dns DNS              DNS server IP address to resolve computers hostname
+  -dnstcp               Use TCP for DNS connection
   -port [port]          port to connect to SMB Server
 
 verbosity:

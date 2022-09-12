@@ -25,7 +25,7 @@ sys.tracebacklimit = 0
 
 
 def main():
-	print("\n**\t\t   HEKATOMB       \t\t**\n\n   Because Domain Admin rights are not enough.\n\t\tHack them all.\n\n\t      made by Processus\n**************************************************\n\n")
+	print("\n██░ ██ ▓█████  ██ ▄█▀▄▄▄     ▄▄▄█████▓ ▒█████   ███▄ ▄███▓ ▄▄▄▄   \n▓██░ ██▒▓█   ▀  ██▄█▒▒████▄   ▓  ██▒ ▓▒▒██▒  ██▒▓██▒▀█▀ ██▒▓█████▄ \n▒██▀▀██░▒███   ▓███▄░▒██  ▀█▄ ▒ ▓██░ ▒░▒██░  ██▒▓██    ▓██░▒██▒ ▄██\n░▓█ ░██ ▒▓█  ▄ ▓██ █▄░██▄▄▄▄██░ ▓██▓ ░ ▒██   ██░▒██    ▒██ ▒██░█▀  \n░▓█▒░██▓░▒████▒▒██▒ █▄▓█   ▓██▒ ▒██▒ ░ ░ ████▓▒░▒██▒   ░██▒░▓█  ▀█▓\n ▒ ░░▒░▒░░ ▒░ ░▒ ▒▒ ▓▒▒▒   ▓▒█░ ▒ ░░   ░ ▒░▒░▒░ ░ ▒░   ░  ░░▒▓███▀▒\n ▒ ░▒░ ░ ░ ░  ░░ ░▒ ▒░ ▒   ▒▒ ░   ░      ░ ▒ ▒░ ░  ░      ░▒░▒   ░ \n ░  ░░ ░   ░   ░ ░░ ░  ░   ▒    ░      ░ ░ ░ ▒  ░      ░    ░    ░ \n ░  ░  ░   ░  ░░  ░        ░  ░            ░ ░         ░    ░      \n   Because Domain Admin rights are not enough.\n\t\tHack them all.\n\n\t      made by Processus\n**************************************************\n\n")
 
 	parser = argparse.ArgumentParser(add_help = True, description = "Script used to automate domain computers and users extraction and the \nexported domain backup keys from DC to collect and decrypt all users' DPAPI secrets \nsaved in Windows credential manager.")
 

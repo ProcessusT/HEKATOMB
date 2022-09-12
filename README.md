@@ -13,7 +13,7 @@
   <br><br>
 </div>
 
-> Hekatomb is a hacking script that connects to LDAP directory to retrieve all computers and users informations.<br />
+> Hekatomb is a python script that connects to LDAP directory to retrieve all computers and users informations.<br />
 > Then it will download all DPAPI blob of all users from all computers and uses Domain backup keys to decrypt them.
 > 
 > Script kiddies codes malwares in C#, real pentesters use Python and are already Domain Admins 🐍

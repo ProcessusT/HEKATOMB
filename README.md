@@ -20,7 +20,7 @@
 > 
 <br>
 <div align="center">
-<img src="./.assets/hekatomb.png" width="80%;">
+<img src="./.assets/github1.png" width="80%;">
 </div>
 <br>
 

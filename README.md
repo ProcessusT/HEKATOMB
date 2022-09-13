@@ -24,6 +24,15 @@
 </div>
 <br>
 
+
+## Changelog
+<br />
+Dernière version :<br />
+- Extraction des clés du domaine de manière autonome
+- Classement des identifiants par poste et par utilisateur
+
+<br /><br />
+
 ## What da fuck is this ?
 <br />
 On Windows, credentials saved in the Windows Credentials Manager are encrypted using Microsoft's Data Protection API and stored as "blob" files in user AppData folder.<br />

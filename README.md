@@ -28,8 +28,8 @@
 ## Changelog
 <br />
 Dernière version :<br />
-- Extraction des clés du domaine de manière autonome
-- Classement des identifiants par poste et par utilisateur
+- Extraction des clés du domaine de manière autonome<br />
+- Classement des identifiants par poste et par utilisateur<br />
 
 <br /><br />
 

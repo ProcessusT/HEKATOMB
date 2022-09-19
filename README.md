@@ -27,9 +27,9 @@
 
 ## Changelog
 <br />
-Dernière version :<br />
-- Extraction des clés du domaine de manière autonome<br />
-- Classement des identifiants par poste et par utilisateur<br />
+On last version :<br />
+- Domain controller private key extraction through RPC<br />
+- Credentials classification by computers and by users<br />
 
 <br /><br />
 

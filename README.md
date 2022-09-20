@@ -84,13 +84,13 @@ authentication:
                         NTLM hashes, format is LMHASH:NTHASH
 
 authentication:
-  -pvk PVK              domain backup keys file
-  -dns DNS              DNS server IP address to resolve computers hostname
-  -dnstcp               Use TCP for DNS connection
-  -port [port]          port to connect to SMB Server
-  -just-user            Test only specified username
-  -just-computer        Test only specified computer
-  -md5                  Print md5 hash insted of clear passwords
+  -pvk PVK                  domain backup keys file
+  -dns DNS                  DNS server IP address to resolve computers hostname
+  -dnstcp                   Use TCP for DNS connection
+  -port [port]              port to connect to SMB Server
+  -just-user [USERNAME]     Test only specified username
+  -just-computer [COMPUTER] Test only specified computer
+  -md5                      Print md5 hash insted of clear passwords
 
 verbosity:
   -debug                Turn DEBUG output ON

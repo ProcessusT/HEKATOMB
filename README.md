@@ -14,8 +14,9 @@
 </div>
 
 > Hekatomb is a python script that connects to LDAP directory to retrieve all computers and users informations.<br />
-> Then it will download all DPAPI blob of all users from all computers and uses Domain backup keys to decrypt them.
-> 
+> Then it will download all DPAPI blob of all users from all computers.<br />
+>	Finally, it will extract domain controller private key through RPC uses it to decrypt all credentials.<br />
+> <br />
 > Script kiddies code malwares in C#, real pentesters use Python and are already Domain Admins 🐍
 > 
 <br>
@@ -28,10 +29,10 @@
 ## Changelog
 <br />
 On last version (V 1.2) :<br />
-- Increase the LDAP results limit of users or computers extraction (1000 previously)
-- Add the possibility to specify a user or a computer to target
-
-V 1.1 :
+- Increase the LDAP results limit of users or computers extraction (1000 previously)<br />
+- Add the possibility to specify a user or a computer to target<br />
+<br />
+V 1.1 :<br />
 - Domain controller private key extraction through RPC<br />
 - Credentials classification by computers and by users<br />
 
@@ -51,7 +52,7 @@ Hekatomb automates the search for blobs and the decryption to recover all domain
 ## Requirements
 <br>
 Hekatomb is coded in Python 3 and uses Pip to install its requirements :
-<br><br>
+<br>
 
 ```python
 git clone https://github.com/Processus-Thief/HEKATOMB
@@ -68,23 +69,29 @@ Hekatomb uses Impacket syntax :
 <br><br>
 
 ```python
-usage: hekatomb.py [-h] [-pvk PVK] [-hashes LMHASH:NTHASH] [-dns DNS] [-port [port]] [-md5] [-debug] [-debugmax] target
+usage: hekatomb.py [-h] [-hashes LMHASH:NTHASH] [-pvk PVK] [-dns DNS] [-dnstcp] [-port [port]] [-just-user JUST_USER] [-just-computer JUST_COMPUTER] [-md5] [-debug] [-debugmax] target
+
+Script used to automate domain computers and users extraction from LDAP and extraction of domain controller private key through RPC to collect and decrypt all users' DPAPI secrets saved in Windows credential manager.
 
 positional arguments:
   target                [[domain/]username[:password]@]<targetName or address of DC>
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
 
 authentication:
-  -pvk PVK              domain backup keys file
-  -hashes LMHASH:NTHASH NTLM hashes, format is LMHASH:NTHASH
-  -dns DNS              DNS server IP address to resolve computers hostname
-  -dnstcp               Use TCP for DNS connection
-  -port [port]          port to connect to SMB Server
+  -hashes LMHASH:NTHASH     NTLM hashes, format is LMHASH:NTHASH
+
+authentication:
+  -pvk PVK                  domain backup keys file
+  -dns DNS                  DNS server IP address to resolve computers hostname
+  -dnstcp                   Use TCP for DNS connection
+  -port [port]              port to connect to SMB Server
+  -just-user [USERNAME]     Test only specified username
+  -just-computer [COMPUTER] Test only specified computer
+  -md5                      Print md5 hash insted of clear passwords
 
 verbosity:
-  -md5                  Print md5 hash insted of clear passwords
   -debug                Turn DEBUG output ON
   -debugmax             Turn DEBUG output TO MAAAAXXXX
 ```
@@ -97,7 +104,7 @@ verbosity:
 <br>
 
 ```python
-python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.0.0.1 -debug -pvk pvkfile.pvk
+python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.0.0.1 -debug -dnstcp
 ```
 
 <br>
@@ -105,5 +112,5 @@ python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/admini
     
 ## How to retrieve domain backup keys ?
 
-<br /><br />
+<br />
 If no domain backup keys are provided, the script will retrieve it through RPC

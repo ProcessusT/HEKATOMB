@@ -34,15 +34,19 @@ def main():
 
 	parser.add_argument('target', action='store', help='[[domain/]username[:password]@]<targetName or address of DC>')
 
-	group = parser.add_argument_group('authentication')
-	group.add_argument('-pvk', action='store', help='domain backup keys file')
-	group.add_argument('-hashes', action="store", metavar = "LMHASH:NTHASH", help='NTLM hashes, format is LMHASH:NTHASH')
-	group.add_argument('-dns', action="store", help='DNS server IP address to resolve computers hostname')
-	group.add_argument('-dnstcp', action="store_true", help='Use TCP for DNS connection')
-	group.add_argument('-port', choices=['139', '445'], nargs='?', default='445', metavar="port", help='port to connect to SMB Server')
+	auth = parser.add_argument_group('authentication')
+	auth.add_argument('-hashes', action="store", metavar = "LMHASH:NTHASH", help='NTLM hashes, format is LMHASH:NTHASH')
+
+	options = parser.add_argument_group('authentication')
+	options.add_argument('-pvk', action='store', help='domain backup keys file')
+	options.add_argument('-dns', action="store", help='DNS server IP address to resolve computers hostname')
+	options.add_argument('-dnstcp', action="store_true", help='Use TCP for DNS connection')
+	options.add_argument('-port', choices=['139', '445'], nargs='?', default='445', metavar="port", help='port to connect to SMB Server')
+	options.add_argument('-just-user', action='store', help='Test only specified username')
+	options.add_argument('-just-computer', action='store', help='Test only specified computer')
+	options.add_argument('-md5', action="store_true", help='Print md5 hash insted of clear passwords')
 	
 	verbosity = parser.add_argument_group('verbosity')
-	verbosity.add_argument('-md5', action="store_true", help='Print md5 hash insted of clear passwords')
 	verbosity.add_argument('-debug', action="store_true", help='Turn DEBUG output ON')
 	verbosity.add_argument('-debugmax', action="store_true", help='Turn DEBUG output TO MAAAAXXXX')
 
@@ -129,13 +133,17 @@ def main():
 
 
 
-	# catch all users in domain
+	# catch all users in domain or just the specified one
+	if options.just_user is not None :
+		searchFilter = "(&(objectCategory=person)(objectClass=user)(sAMAccountName="+str( options.just_user)+"))"
+		print("Target user will be only " + str( options.just_user))
+	else:
+		searchFilter = "(&(objectCategory=person)(objectClass=user))"
 	try:
 		if options.debug is True or options.debugmax is True:
 			print("Retrieving user objects in LDAP directory...")
-		searchFilter = "(&(objectCategory=person)(objectClass=user))"
 		users_list = []
-		ldap_users = ldapConnection.search(searchFilter=searchFilter, attributes=['sAMAccountName', 'objectSID'])
+		ldap_users = ldapConnection.search(searchFilter=searchFilter, attributes=['sAMAccountName', 'objectSID'], sizeLimit=9999)
 		if options.debug is True or options.debugmax is True:
 			print("Converting ObjectSID in string SID...")
 		for user in ldap_users:
@@ -159,36 +167,60 @@ def main():
 				# some users may not have samAccountName
 		if options.debug is True or options.debugmax is True:
 			print("Found about " + str( len(users_list) ) + " users in LDAP directory.")
+	except ldap.LDAPSearchError as e:
+		if e.getErrorString().find('sizeLimitExceeded') >=0:
+			print(e)
+			ldap_users = e.getAnswers()
+			pass # LDAP results limit reached
+		else:
+			raise
 	except:
 		ldapConnection.close()
 		print("Error : Could not extract users from ldap.")
 		if options.debug is True or options.debugmax is True:
 			import traceback
 			traceback.print_exc()
-	
+	if len(users_list) == 0:
+		print("No user found in LDAP directory")
+		sys.exit(1);
 
 
-	# catch all computers in domain
-	try:
-		if options.debug is True or options.debugmax is True:
-			print("Retrieving computer objects in LDAP directory...")
-		searchFilter = "(&(objectCategory=computer)(objectClass=computer))"
+
+
+
+	# catch all computers in domain or just the specified one
+	if options.just_computer is not None :
 		computers_list = []
-		ldap_computers = ldapConnection.search(searchFilter=searchFilter, attributes=['cn'])
-		for computer in ldap_computers:
-			try:
-				comp_name = str( str(computer).split("type=cn")[1] ).split("vals=SetOf:")[1]
-				computers_list.append( comp_name.strip() )
-			except:
-				pass
-		if options.debug is True or options.debugmax is True:
-			print("Found about " + str( len(computers_list) ) + " computers in LDAP directory.")
-	except:
-		ldapConnection.close()
-		print("Error : Could not extract computers from ldap.")
-		if options.debug is True or options.debugmax is True:
-			import traceback
-			traceback.print_exc()
+		computers_list.append( options.just_computer )
+		print("Target computer will be only " + str( options.just_computer))
+	else:
+		try:
+			if options.debug is True or options.debugmax is True:
+				print("Retrieving computer objects in LDAP directory...")
+			searchFilter = "(&(objectCategory=computer)(objectClass=computer))"
+			computers_list = []
+			ldap_computers = ldapConnection.search(searchFilter=searchFilter, attributes=['cn'], sizeLimit=9999)
+			for computer in ldap_computers:
+				try:
+					comp_name = str( str(computer).split("type=cn")[1] ).split("vals=SetOf:")[1]
+					computers_list.append( comp_name.strip() )
+				except:
+					pass
+			if options.debug is True or options.debugmax is True:
+				print("Found about " + str( len(computers_list) ) + " computers in LDAP directory.")
+		except ldap.LDAPSearchError as e:
+			if e.getErrorString().find('sizeLimitExceeded') >=0:
+				print(e)
+				ldap_users = e.getAnswers()
+				pass # LDAP results limit reached
+			else:
+				raise
+		except:
+			ldapConnection.close()
+			print("Error : Could not extract computers from ldap.")
+			if options.debug is True or options.debugmax is True:
+				import traceback
+				traceback.print_exc()
 
 
 

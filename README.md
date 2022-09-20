@@ -16,7 +16,7 @@
 > Hekatomb is a python script that connects to LDAP directory to retrieve all computers and users informations.<br />
 > Then it will download all DPAPI blob of all users from all computers and uses Domain backup keys to decrypt them.
 > 
-> Script kiddies codes malwares in C#, real pentesters use Python and are already Domain Admins 🐍
+> Script kiddies code malwares in C#, real pentesters use Python and are already Domain Admins 🐍
 > 
 <br>
 <div align="center">
@@ -27,9 +27,9 @@
 
 ## Changelog
 <br />
-Dernière version :<br />
-- Extraction des clés du domaine de manière autonome<br />
-- Classement des identifiants par poste et par utilisateur<br />
+On last version :<br />
+- Domain controller private key extraction through RPC<br />
+- Credentials classification by computers and by users<br />
 
 <br /><br />
 

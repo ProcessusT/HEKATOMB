@@ -28,10 +28,10 @@
 ## Changelog
 <br />
 On last version (V 1.2) :<br />
-- Increase the LDAP results limit of users or computers extraction (1000 previously)
-- Add the possibility to specify a user or a computer to target
-
-V 1.1 :
+- Increase the LDAP results limit of users or computers extraction (1000 previously)<br />
+- Add the possibility to specify a user or a computer to target<br />
+<br />
+V 1.1 :<br />
 - Domain controller private key extraction through RPC<br />
 - Credentials classification by computers and by users<br />
 

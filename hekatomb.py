@@ -1,4 +1,20 @@
 #!/usr/bin/env python3
+#
+# HEKATOMB - Because Domain Admin rights are not enough. Hack them all.
+#
+# V 1.2
+#
+# Copyright (C) 2022 Les tutos de Processus. All rights reserved.
+#
+#
+# Description:
+#   Hekatomb is a python script that connects to LDAP directory to retrieve all computers and users informations.
+#	Then it will download all DPAPI blob of all users from all computers.
+#	Finally, it will extract domain controller private key through RPC uses it to decrypt all credentials.
+#
+# Author:
+#   Processus (@ProcessusT)
+#
 
 import os
 import sys

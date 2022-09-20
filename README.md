@@ -80,8 +80,7 @@ options:
   -h, --help            show this help message and exit
 
 authentication:
-  -hashes LMHASH:NTHASH
-                        NTLM hashes, format is LMHASH:NTHASH
+  -hashes LMHASH:NTHASH     NTLM hashes, format is LMHASH:NTHASH
 
 authentication:
   -pvk PVK                  domain backup keys file

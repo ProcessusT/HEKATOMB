@@ -59,7 +59,7 @@ def main():
 	options.add_argument('-port', choices=['139', '445'], nargs='?', default='445', metavar="port", help='port to connect to SMB Server')
 	options.add_argument('-just-user', action='store', help='Test only specified username')
 	options.add_argument('-just-computer', action='store', help='Test only specified computer')
-	options.add_argument('-md5', action="store_true", help='Print md5 hash insted of clear passwords')
+	options.add_argument('-md5', action="store_true", help='Print md5 hash instead of clear passwords')
 	
 	verbosity = parser.add_argument_group('verbosity')
 	verbosity.add_argument('-csv', action="store_true", help='Export results to CSV file')

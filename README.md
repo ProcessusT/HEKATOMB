@@ -21,7 +21,7 @@
 > 
 <br>
 <div align="center">
-<img src="./.assets/github1.png" width="80%;">
+<img src="https://github.com/Processus-Thief/HEKATOMB/raw/main/.assets/github1.png" width="80%;">
 </div>
 <br>
 
@@ -109,7 +109,7 @@ python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/admini
 ```
 
 <br>
-<br>
+<br
     
 ## How to retrieve domain backup keys ?
 

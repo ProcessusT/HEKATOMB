@@ -109,7 +109,7 @@ python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/admini
 ```
 
 <br>
-<br
+<br>
     
 ## How to retrieve domain backup keys ?
 

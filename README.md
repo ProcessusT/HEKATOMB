@@ -50,9 +50,9 @@ Hekatomb automates the search for blobs and the decryption to recover all domain
 <br />
 <br />
 
-## Requirements
+## Installation
 <br>
-Hekatomb is coded in Python 3 and uses Pip to install its requirements :
+From sources :
 <br>
 
 ```python

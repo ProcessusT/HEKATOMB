@@ -58,7 +58,7 @@ Hekatomb is coded in Python 3 and uses Pip to install its requirements :
 ```python
 git clone https://github.com/Processus-Thief/HEKATOMB
 cd HEKATOMB
-pip3 install -r requirements.txt
+python3 setup.py install
 ```
 
 <br><br>
@@ -70,7 +70,7 @@ Hekatomb uses Impacket syntax :
 <br><br>
 
 ```python
-usage: hekatomb.py [-h] [-hashes LMHASH:NTHASH] [-pvk PVK] [-dns DNS] [-dnstcp] [-port [port]] [-just-user JUST_USER] [-just-computer JUST_COMPUTER] [-md5] [-debug] [-debugmax] target
+usage: hekatomb [-h] [-hashes LMHASH:NTHASH] [-pvk PVK] [-dns DNS] [-dnstcp] [-port [port]] [-just-user JUST_USER] [-just-computer JUST_COMPUTER] [-md5] [-debug] [-debugmax] target
 
 Script used to automate domain computers and users extraction from LDAP and extraction of domain controller private key through RPC to collect and decrypt all users' DPAPI secrets saved in Windows credential manager.
 
@@ -105,7 +105,7 @@ verbosity:
 <br>
 
 ```python
-python3 hekatomb.py -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.0.0.1 -debug -dnstcp
+hekatomb -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.0.0.1 -debug -dnstcp
 ```
 
 <br>

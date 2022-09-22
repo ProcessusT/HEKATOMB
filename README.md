@@ -109,7 +109,7 @@ hekatomb -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.
 ```
 
 <br>
-<br
+<br>
     
 ## How to retrieve domain backup keys ?
 

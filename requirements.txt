@@ -1,3 +1,0 @@
-dnspython==2.2.1
-impacket==0.10.0
-pycryptodomex==3.15.0

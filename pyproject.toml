@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "hekatomb"
+version = "1.2.1"
+description = "Python library to extract and decrypt all credentials from all domain computers"
+license = "GPL-3.0-only"
+authors = ["Processus Thief <hekatomb@thiefin.fr>"]
+maintainers = [
+    "Processus Thief <hekatomb@thiefin.fr>"
+]
+readme = "README.md"
+homepage = "https://github.com/Processus-Thief/HEKATOMB"
+repository = "https://github.com/Processus-Thief/HEKATOMB"
+documentation = "https://github.com/Processus-Thief/HEKATOMB"
+keywords = ["hekatomb", "dpapi", "windows", "blob", "masterkey", "activedirectory", "credentials"]
+classifiers = [
+	"Topic :: System :: Systems Administration :: Authentication/Directory",
+	"Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP"
+]
+packages = [
+    { include = "src/*.py" }
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.6"
+impacket = "^0.10.0"
+dnspython = "^2.2.1"
+pycryptodomex = "^3.15.0"
+
+[tool.poetry.scripts]
+hekatomb = "src.hekatomb:main"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/Processus-Thief/HEKATOMB/issues"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

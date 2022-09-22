@@ -28,7 +28,10 @@
 
 ## Changelog
 <br />
-On last version (V 1.2) :<br />
+On last version (V 1.2.1) :<br />
+- Add installation with Pypi
+<br />
+V 1.2 :<br />
 - Increase the LDAP results limit of users or computers extraction (1000 previously)<br />
 - Add the possibility to specify a user or a computer to target<br />
 - Add the possibility to export results to a CSV file<br />
@@ -51,6 +54,14 @@ Hekatomb automates the search for blobs and the decryption to recover all domain
 <br />
 
 ## Installation
+<br>
+From Pypi :
+<br><br>
+
+```python
+pip3 install hekatomb
+```
+
 <br>
 From sources :
 <br><br>

@@ -28,8 +28,15 @@
 
 ## Changelog
 <br />
-On last version (V 1.2.1) :<br />
-- Add installation with Pypi
+On last version (V 1.2.2) :
+<br />
+- Use of the ldap3 library instead of Impacket for LDAP requests<br />
+- Fix a bug that prevented querying trusted domains via an external domain account with administrator rights on the trusted domain controller<br />
+- Add -smb2 parameter to force the use of SMBv2 protocol when it is available<br />
+- LDAP and SMB communications are now more difficult to detect on the network<br />
+<br />
+V 1.2.1 :<br />
+- Add installation with Pypi<br />
 <br />
 V 1.2 :<br />
 - Increase the LDAP results limit of users or computers extraction (1000 previously)<br />
@@ -89,16 +96,17 @@ positional arguments:
   target                [[domain/]username[:password]@]<targetName or address of DC>
 
 options:
-  -h, --help            show this help message and exit
+  -h, --help            Show this help message and exit
 
 authentication:
   -hashes LMHASH:NTHASH     NTLM hashes, format is LMHASH:NTHASH
 
 authentication:
-  -pvk PVK                  domain backup keys file
+  -pvk PVK                  Domain backup keys file
   -dns DNS                  DNS server IP address to resolve computers hostname
   -dnstcp                   Use TCP for DNS connection
-  -port [port]              port to connect to SMB Server
+  -port [port]              Port to connect to SMB Server
+  -smb2                     Force the use of SMBv2 protocol
   -just-user [USERNAME]     Test only specified username
   -just-computer [COMPUTER] Test only specified computer
   -md5                      Print md5 hash insted of clear passwords

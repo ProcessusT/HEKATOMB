@@ -29,13 +29,14 @@
 ## Changelog
 <br />
 On last version (V 1.2.2) :
-- Use of the ldap3 library instead of Impacket for LDAP requests
-- Fix a bug that prevented querying trusted domains via an external domain account with administrator rights on the trusted domain controller
-- Add -smb2 parameter to force the use of SMBv2 protocol when it is available
-- LDAP and SMB communications are now more difficult to detect on the network
+<br />
+- Use of the ldap3 library instead of Impacket for LDAP requests<br />
+- Fix a bug that prevented querying trusted domains via an external domain account with administrator rights on the trusted domain controller<br />
+- Add -smb2 parameter to force the use of SMBv2 protocol when it is available<br />
+- LDAP and SMB communications are now more difficult to detect on the network<br />
 <br />
 V 1.2.1 :<br />
-- Add installation with Pypi
+- Add installation with Pypi<br />
 <br />
 V 1.2 :<br />
 - Increase the LDAP results limit of users or computers extraction (1000 previously)<br />

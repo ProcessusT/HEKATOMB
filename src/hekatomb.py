@@ -14,6 +14,8 @@
 #
 # Author:
 #   Processus (@ProcessusT)
+# Collaborators:
+#	C0wnuts (@kevin_racca)
 #
 
 import os, sys, argparse, random, string
@@ -83,7 +85,10 @@ def main():
 		passLdap = password
 	if options.hashes is not None:
 		lmhash, nthash = options.hashes.split(':')
-		passLdap       = options.hashes
+		if '' == lmhash:
+			lmhash = 'aad3b435b51404eeaad3b435b51404ee'
+		passLdap       = f"{lmhash}:{nthash}"
+
 	else:
 		lmhash = ''
 		nthash = ''
@@ -136,7 +141,7 @@ def main():
 		if options.debug is True or options.debugmax is True:
 			print("LDAP connection successfull with SSL encryption.")
 	except:
-		print("Could not connect to ldap with SSL encryption. Trying without SSL encryption...")
+		print("Error : Could not connect to ldap with SSL encryption. Trying without SSL encryption...")
 		connectionFailed = True
 
 	if True == connectionFailed:

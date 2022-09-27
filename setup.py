@@ -19,7 +19,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
   name='hekatomb',
-  version='1.2.0',
+  version='1.2.2',
   license='GPL-3.0 license',
   author="Processus Thief",
   author_email='hekatomn@thiefin.fr',
@@ -33,7 +33,8 @@ setup(
   install_requires=[
     'pycryptodomex',
     'impacket',
-    'dnspython'
+    'dnspython',
+    'ldap3'
   ],
   entry_points={
         'console_scripts': [

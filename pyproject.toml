@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hekatomb"
-version = "1.2.1"
+version = "1.2.2"
 description = "Python library to extract and decrypt all credentials from all domain computers"
 license = "GPL-3.0-only"
 authors = ["Processus Thief <hekatomb@thiefin.fr>"]
@@ -26,6 +26,7 @@ python = "^3.6"
 impacket = "^0.10.0"
 dnspython = "^2.2.1"
 pycryptodomex = "^3.15.0"
+ldap3 = "^2.9"
 
 [tool.poetry.scripts]
 hekatomb = "src.hekatomb:main"

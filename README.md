@@ -8,7 +8,8 @@
   <br>
   <h1>
     Because Domain Admin rights are not enough.<br />
-                Hack them all.
+                Hack them all.<br />
+                🐍
   </h1>
   <br><br>
 </div>
@@ -17,7 +18,6 @@
 > Then it will download all DPAPI blob of all users from all computers.<br />
 >	Finally, it will extract domain controller private key through RPC uses it to decrypt all credentials.<br />
 > <br />
-> Script kiddies code malwares in C#, real pentesters use Python and are already Domain Admins 🐍
 > 
 <br>
 <div align="center">

@@ -283,7 +283,7 @@ def main():
 			# For each user
 			for current_user in users_list:
 				# If there is a user folder for this user
-				if current_user in users_folders:
+				if current_user[0] in users_folders:
 					try:
 						if options.debugmax is True:
 							print("Trying user " + str(current_user[0]) + " on computer " + str(current_computer) )

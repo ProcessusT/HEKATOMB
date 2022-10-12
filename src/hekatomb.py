@@ -275,7 +275,7 @@ def main():
 			users_folders = []
 			for item in filesNfolders:
 			    if item.is_directory():
-			        user_folder = str( str(item).split("longname=\"")[1] ).split("\", filesize=")[0]
+			        user_folder = str( str(item).split("longname=\"")[1] ).split("\", filesize=")[0].lower()
 			        if user_folder != "." and user_folder != "..":
 			            users_folders.append(user_folder)
 
@@ -283,7 +283,7 @@ def main():
 			# For each user
 			for current_user in users_list:
 				# If there is a user folder for this user
-				if current_user[0] in users_folders:
+				if current_user[0].lower() in users_folders:
 					try:
 						if options.debugmax is True:
 							print("Trying user " + str(current_user[0]) + " on computer " + str(current_computer) )

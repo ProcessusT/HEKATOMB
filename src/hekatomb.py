@@ -280,9 +280,9 @@ def main():
 			            users_folders.append(user_folder)
 
 
-            # For each user
+			# For each user
 			for current_user in users_list:
-                # If there is a user folder for this user
+				# If there is a user folder for this user
 				if current_user in users_folders:
 					try:
 						if options.debugmax is True:

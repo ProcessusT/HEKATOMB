@@ -28,8 +28,11 @@
 
 ## Changelog
 <br />
-On last version (V 1.2.2) :
+On last version (V 1.3) :<br />
+- Compare LDAP usernames with SMB users folders before trying to retrieve blob files to get them faster<br />
+- DNSTCP option is no more used, DNS resolution is trying on UDP first and with TCP if it fails<br />
 <br />
+V 1.2.1 :<br />
 - Use of the ldap3 library instead of Impacket for LDAP requests<br />
 - Fix a bug that prevented querying trusted domains via an external domain account with administrator rights on the trusted domain controller<br />
 - Add -smb2 parameter to force the use of SMBv2 protocol when it is available<br />

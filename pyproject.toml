@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hekatomb"
-version = "1.2.2"
+version = "1.3"
 description = "Python library to extract and decrypt all credentials from all domain computers"
 license = "GPL-3.0-only"
 authors = ["Processus Thief <hekatomb@thiefin.fr>"]

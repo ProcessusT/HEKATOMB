@@ -107,7 +107,6 @@ authentication:
 authentication:
   -pvk PVK                  Domain backup keys file
   -dns DNS                  DNS server IP address to resolve computers hostname
-  -dnstcp                   Use TCP for DNS connection
   -port [port]              Port to connect to SMB Server
   -smb2                     Force the use of SMBv2 protocol
   -just-user [USERNAME]     Test only specified username
@@ -127,7 +126,7 @@ verbosity:
 <br>
 
 ```python
-hekatomb -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.0.0.1 -debug -dnstcp
+hekatomb -hashes :ed0052e5a66b1c8e942cc9481a50d56 DOMAIN.local/administrator@10.0.0.1 -debug 
 ```
 
 <br>

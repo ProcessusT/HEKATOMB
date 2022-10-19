@@ -255,10 +255,10 @@ def main():
 			resolver             = dns.resolver.Resolver(configure=False)
 			resolver.nameservers = [dns_server]
 			current_computer     = current_computer + "." + domain
-			# trying dns resolution in UDP and if it fails, we try in TCP
-			answer = resolver.resolve(current_computer, "A")
+			# trying dns resolution in TCP and if it fails, we try in UDP
+			answer = resolver.resolve(current_computer, "A", tcp=True)
 			if len(answer) == 0:
-				answer = resolver.resolve(current_computer, "A", tcp=True)
+				answer = resolver.resolve(current_computer, "A", tcp=False)
 				if len(answer) == 0:
 					sys.exit(1)
 			else:

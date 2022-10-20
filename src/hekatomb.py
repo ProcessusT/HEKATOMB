@@ -16,7 +16,7 @@
 #   Processus (@ProcessusT)
 # Collaborators:
 #	C0wnuts (@kevin_racca)
-#
+#	kalu (@kalu_69)
 
 import os, sys, argparse, random, string, time
 from ldap3 import Connection, Server, NTLM, ALL

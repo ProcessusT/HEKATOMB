@@ -19,7 +19,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
   name='hekatomb',
-  version='1.4',
+  version='1.5',
   license='GPL-3.0 license',
   author="Processus Thief",
   author_email='hekatomb@thiefin.fr',

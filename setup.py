@@ -10,8 +10,8 @@
 
 
 import pathlib
-import setuptools
 from setuptools import setup, find_packages
+
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -26,6 +26,7 @@ setup(
   description="Python library to extract and decrypt all credentials from all domain computers",
   long_description=README,
   long_description_content_type="text/markdown",
+  packages=['src'],
   url='https://github.com/Processus-Thief/HEKATOMB',
   keywords='dpapi windows blob masterkey activedirectory credentials',
   platforms='any',
@@ -37,7 +38,7 @@ setup(
   ],
   entry_points={
         'console_scripts': [
-            'hekatomb = hekatomb:main',
+            'hekatomb = src.hekatomb:main',
         ],
     },
   python_requires='>=3.6',

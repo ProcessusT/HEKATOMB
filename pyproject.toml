@@ -27,6 +27,7 @@ impacket = "^0.10.0"
 dnspython = "^2.2.1"
 pycryptodomex = "^3.15.0"
 ldap3 = "^2.9"
+chardet = "^5.2.0"
 
 [tool.poetry.scripts]
 hekatomb = "src.hekatomb:main"

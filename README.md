@@ -92,6 +92,16 @@ cd HEKATOMB
 python3 setup.py install
 ```
 
+<br>
+From BlackArch :
+<br><br>
+
+```python
+pacman -S hekatomb
+```
+
+[![BlackArch package](https://repology.org/badge/version-for-repo/blackarch/hekatomb.svg)](https://repology.org/project/hekatomb/versions)
+
 <br><br>
 
 

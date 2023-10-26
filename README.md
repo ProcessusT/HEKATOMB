@@ -75,22 +75,13 @@ Hekatomb automates the search for blobs and the decryption to recover all domain
 
 ## Installation
 <br>
-From Pypi :
+From Pypi for Debian-based :
 <br><br>
 
 ```python
 pip3 install hekatomb
 ```
 
-<br>
-From sources :
-<br><br>
-
-```python
-git clone https://github.com/Processus-Thief/HEKATOMB
-cd HEKATOMB
-python3 setup.py install
-```
 
 <br>
 From BlackArch :

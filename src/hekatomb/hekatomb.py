@@ -37,8 +37,8 @@ from Cryptodome.Cipher import PKCS1_v1_5
 from datetime import datetime
 from impacket.ese import getUnixTime
 import hashlib
-from ad_ldap import Connect_AD_ldap, Get_AD_users, Get_AD_computers, SmbScan, Get_online_computers
-from blobs import Create_folders, Get_blob_and_mkf
+from hekatomb.ad_ldap import Connect_AD_ldap, Get_AD_users, Get_AD_computers, SmbScan, Get_online_computers
+from hekatomb.blobs import Create_folders, Get_blob_and_mkf
 
 
 sys.tracebacklimit = 0

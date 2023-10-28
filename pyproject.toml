@@ -17,7 +17,7 @@ classifiers = [
 	"Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP"
 ]
 packages = [
-    { include = "src/*.py" }
+    { include = "hekatomb", from = "src" }
 ]
 
 
@@ -30,7 +30,7 @@ ldap3 = "^2.9"
 chardet = "^5.2.0"
 
 [tool.poetry.scripts]
-hekatomb = "src.hekatomb:main"
+hekatomb = "src.hekatomb.hekatomb:main"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/Processus-Thief/HEKATOMB/issues"

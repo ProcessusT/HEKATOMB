@@ -22,7 +22,7 @@ packages = [
 
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 impacket = "^0.10.0"
 dnspython = "^2.2.1"
 pycryptodomex = "^3.15.0"

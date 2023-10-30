@@ -93,7 +93,19 @@ pacman -S hekatomb
 
 [![BlackArch package](https://repology.org/badge/version-for-repo/blackarch/hekatomb.svg)](https://repology.org/project/hekatomb/versions)
 
+<br>
+
+From github :
 <br><br>
+
+```python
+git clone https://github.com/Processus-Thief/HEKATOMB
+cd HEKATOMB
+poetry install
+poetry run hekatomb
+```
+<br>
+<br>
 
 
 ## Usage

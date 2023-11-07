@@ -2,7 +2,7 @@
 
 <div align="center">
   <br>
-  <img src="https://img.shields.io/badge/Python-3.6+-informational">
+  <img src="https://img.shields.io/badge/Python-3.11-informational">
   <br>
   <a href="https://twitter.com/intent/follow?screen_name=ProcessusT" title="Follow"><img src="https://img.shields.io/twitter/follow/ProcessusT?label=ProcessusT&style=social"></a>
   <br>

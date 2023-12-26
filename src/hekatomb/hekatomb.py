@@ -2,7 +2,7 @@
 #
 # HEKATOMB - Because Domain Admin rights are not enough. Hack them all.
 #
-# V 1.3
+# V 1.5.1
 #
 # Copyright (C) 2022 Les tutos de Processus. All rights reserved.
 #

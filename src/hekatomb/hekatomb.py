@@ -148,8 +148,11 @@ def main():
 
 	online_computers = Get_online_computers()
 	if debug is True or debugmax is True:
-		print("It seems that " + str(len(online_computers)) + " computers are online ...")
+		print("[+] It seems that " + str(len(online_computers)) + " computers are online ...")
 
+	if online_computers<1:
+		print("\n[!] No computers available")
+		sys.exit()
 	# # Retrieving blobs and mkf files
 	Get_blob_and_mkf(online_computers, users_list, username, password, domain, lmhash, nthash, myName, port, preferredDialect, blobFolder, mkfFolder, dns_server, debug, debugmax)
 

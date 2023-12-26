@@ -30,6 +30,7 @@
 <br />
 On last version (V 1.5) :<br />
 - Fix local packages importation error with pip installation<br />
+- Prevent crash when no computers are reachable<br />
 <br />
 V 1.4 :<br />
 - Fix LDAP search limitation to 1000 items<br />

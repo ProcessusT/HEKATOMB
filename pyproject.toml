@@ -8,9 +8,9 @@ maintainers = [
     "Processus Thief <hekatomb@thiefin.fr>"
 ]
 readme = "README.md"
-homepage = "https://github.com/Processus-Thief/HEKATOMB"
-repository = "https://github.com/Processus-Thief/HEKATOMB"
-documentation = "https://github.com/Processus-Thief/HEKATOMB"
+homepage = "https://github.com/ProcessusT/HEKATOMB"
+repository = "https://github.com/ProcessusT/HEKATOMB"
+documentation = "https://github.com/ProcessusT/HEKATOMB"
 keywords = ["hekatomb", "dpapi", "windows", "blob", "masterkey", "activedirectory", "credentials"]
 classifiers = [
 	"Topic :: System :: Systems Administration :: Authentication/Directory",
@@ -33,7 +33,7 @@ chardet = "^5.2.0"
 hekatomb = "src.hekatomb.hekatomb:main"
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/Processus-Thief/HEKATOMB/issues"
+"Bug Tracker" = "https://github.com/ProcessusT/HEKATOMB/issues"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

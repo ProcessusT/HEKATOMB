@@ -21,7 +21,7 @@
 > 
 <br>
 <div align="center">
-<img src="https://github.com/Processus-Thief/HEKATOMB/raw/main/.assets/hekatomb_v1.4.png" width="80%;">
+<img src="https://github.com/ProcessusT/HEKATOMB/raw/main/.assets/hekatomb_v1.4.png" width="80%;">
 </div>
 <br>
 
@@ -100,7 +100,7 @@ From github :
 <br><br>
 
 ```python
-git clone https://github.com/Processus-Thief/HEKATOMB
+git clone https://github.com/ProcessusT/HEKATOMB
 cd HEKATOMB
 poetry install
 poetry run hekatomb

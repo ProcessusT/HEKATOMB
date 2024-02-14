@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hekatomb"
-version = "1.5"
+version = "1.5.14"
 description = "Python library to extract and decrypt all credentials from all domain computers"
 license = "GPL-3.0-only"
 authors = ["Processus Thief <hekatomb@thiefin.fr>"]
@@ -30,7 +30,7 @@ ldap3 = "^2.9"
 chardet = "^5.2.0"
 
 [tool.poetry.scripts]
-hekatomb = "src.hekatomb.hekatomb:main"
+hekatomb = "hekatomb.hekatomb:main"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/ProcessusT/HEKATOMB/issues"
@@ -38,3 +38,7 @@ hekatomb = "src.hekatomb.hekatomb:main"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+# to compile : python3 -m pyproject_installer build
+# then, upload with twine to pypi

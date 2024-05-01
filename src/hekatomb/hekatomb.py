@@ -150,7 +150,7 @@ def main():
 	if debug is True or debugmax is True:
 		print("[+] It seems that " + str(len(online_computers)) + " computers are online ...")
 
-	if online_computers<1:
+	if len(online_computers) <1:
 		print("\n[!] No computers available")
 		sys.exit()
 	# # Retrieving blobs and mkf files

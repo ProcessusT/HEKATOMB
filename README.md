@@ -137,6 +137,9 @@ authentication:
   -just-computer [COMPUTER] Test only specified computer
   -md5                      Print md5 hash insted of clear passwords
 
+output:
+  -csv                      Output the results in csv
+
 verbosity:
   -debug                Turn DEBUG output ON
   -debugmax             Turn DEBUG output TO MAAAAXXXX

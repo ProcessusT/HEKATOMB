@@ -138,6 +138,7 @@ authentication:
   -md5                      Print md5 hash insted of clear passwords
 
 verbosity:
+  -csv                  Output the results in csv
   -debug                Turn DEBUG output ON
   -debugmax             Turn DEBUG output TO MAAAAXXXX
 ```

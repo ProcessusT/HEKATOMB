@@ -21,7 +21,7 @@
 > 
 <br>
 <div align="center">
-<img src="https://github.com/ProcessusT/HEKATOMB/raw/main/.assets/hekatomb_v1.4.png" width="80%;">
+<img src="https://github.com/ProcessusT/HEKATOMB/raw/main/.assets/github1.png" width="80%;">
 </div>
 <br>
 
@@ -31,6 +31,7 @@
 On last version (V 1.5) :<br />
 - Fix local packages importation error with pip installation<br />
 - Prevent crash when no computers are reachable<br />
+- Prevent null domain or null domain extension<br />
 <br />
 V 1.4 :<br />
 - Fix LDAP search limitation to 1000 items<br />

